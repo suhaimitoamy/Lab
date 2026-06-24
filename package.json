@@ -1,0 +1,17 @@
+{
+  "name": "telegram-channel-reader-lab",
+  "version": "1.0.0",
+  "description": "Tes sederhana baca video dari channel Telegram pribadi.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "list": "node index.js",
+    "download": "node index.js --download"
+  },
+  "dependencies": {
+    "dotenv": "latest",
+    "input": "latest",
+    "telegram": "latest"
+  }
+}
