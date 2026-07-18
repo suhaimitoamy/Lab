@@ -1419,6 +1419,7 @@ amyDashV2_sweepFreshBars = input.int(16, "Sweep Fresh Bars", minval=3, maxval=30
 amyDashV2_nearInvalidAtr = input.float(0.35, "Near Invalid ATR", minval=0.05, maxval=2.0, step=0.05, group=amyDashV2_group)
 amyDashV2_dispMult = input.float(1.20, "Displacement Body Mult", minval=0.80, maxval=3.0, step=0.05, group=amyDashV2_group)
 amyDashV2_minSweepTicks = input.int(1, "False Sweep Filter Ticks", minval=0, maxval=20, group=amyDashV2_group)
+amyDashV2_poiMinAgeBars = input.int(1, "POI Min Age (M15 Bars)", minval=0, maxval=8, group=amyDashV2_group, tooltip="POI tetap terlihat sejak terbentuk, tetapi baru boleh memberi skor setelah bertahan sejumlah closed M15 bar ini.")
 
 amyDashV2_pos(_pos) =>
     _pos == "Top Left" ? position.top_left :
@@ -1441,7 +1442,7 @@ amyDashV2_join(_a, _b) =>
 amyDashV2_clip(_s, _max) =>
     str.length(_s) > _max ? str.substring(_s, 0, _max) + "..." : _s
 
-amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
+amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks, _poiMinAgeBars) =>
     var float _lastPH = na
     var float _lastPL = na
     var int _biasDir = 0
@@ -1456,7 +1457,7 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
     var float _sweptPrice = na
     var float _sweepExtreme = na
 
-    // FIX DOL: persistent state 0=None, 1=Active, 2=Reached, 3=Invalid, 4=Expired.
+    // DOL persistent state: 0=None, 1=Active, 2=Reached, 3=Invalid, 4=Expired, 5=Abandoned.
     var int _dolState = 0
     var int _dolDirLocked = 0
     var int _dolStartBar = na
@@ -1561,17 +1562,8 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
         _mssDir := -1
         _rangeLow := na(_rangeLow) ? math.min(_lastPL, _l) : math.min(_rangeLow, _l)
 
-    // Bias change invalidates the previous sweep/DOL context.
-    if _biasChanged
-        _lastSweepDir := 0
-        _lastSweepBar := na
-        _sweptPrice := na
-        _sweepExtreme := na
-        _dolState := 0
-        _dolDirLocked := 0
-        _dolStartBar := na
-        _dolTargetLocked := na
-        _sweepExtremeLocked := na
+    // Bias changes are resolved by the DOL state machine below.
+    // An Active DOL becomes Abandoned(5) instead of disappearing into None(0).
 
     _nearInvalid = _biasDir == 1 and not na(_lockedInvalid) ? _c <= _lockedInvalid + _atr * _nearAtr :
      _biasDir == -1 and not na(_lockedInvalid) ? _c >= _lockedInvalid - _atr * _nearAtr :
@@ -1583,36 +1575,55 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
     _ssl = _lastPL
     _sweepMin = syminfo.mintick * _minSweepTicks
 
-    // FIX DOL ORDERING: resolve the old DOL before any new sweep can replace it.
+    // Resolve the old DOL before any new sweep can replace it.
+    // Priority on the same closed candle: Reached > Invalid > Abandoned > Expired.
     bool _dolReachedNow = false
     bool _dolInvalidNow = false
     bool _dolExpiredNow = false
+    bool _dolAbandonedNow = false
     bool _dolTerminalNow = false
 
     if _dolState == 1
-        // FIX DOL: no same-candle reach; target is the level locked at sweep creation.
+        // No same-candle reach; target remains the level locked at sweep creation.
         _dolReachedNow := not na(_dolStartBar) and _bi > _dolStartBar and not na(_dolTargetLocked) and
          ((_dolDirLocked == 1 and _h >= _dolTargetLocked) or
           (_dolDirLocked == -1 and _l <= _dolTargetLocked))
 
-        // FIX DOL: structural invalidation uses the locked sweep extreme and candle close.
+        // Structural invalidation uses candle close beyond the locked sweep extreme.
         _dolInvalidNow := not na(_sweepExtremeLocked) and
          ((_dolDirLocked == 1 and _c < _sweepExtremeLocked) or
           (_dolDirLocked == -1 and _c > _sweepExtremeLocked))
 
-        // FIX DOL: 16 M15 bars expires exactly at the four-hour boundary.
+        // A changed parent bias makes the old target irrelevant without calling it price failure.
+        _dolAbandonedNow := _biasChanged
+
+        // Expire exactly at the configured freshness boundary.
         _dolExpiredNow := not na(_dolStartBar) and _bi - _dolStartBar >= _freshBars
 
-        // Reached has priority when target and invalidation occur in the same closed candle.
         if _dolReachedNow
             _dolState := 2
             _dolTerminalNow := true
         else if _dolInvalidNow
             _dolState := 3
             _dolTerminalNow := true
+        else if _dolAbandonedNow
+            _dolState := 5
+            _dolTerminalNow := true
         else if _dolExpiredNow
             _dolState := 4
             _dolTerminalNow := true
+
+    // If there is no Active DOL to abandon, a bias change clears stale terminal context.
+    else if _biasChanged
+        _lastSweepDir := 0
+        _lastSweepBar := na
+        _sweptPrice := na
+        _sweepExtreme := na
+        _dolState := 0
+        _dolDirLocked := 0
+        _dolStartBar := na
+        _dolTargetLocked := na
+        _sweepExtremeLocked := na
 
     // New sweep detection occurs only after the old DOL has been resolved.
     _bslSweepNow = not na(_bsl) and _h > _bsl and _c < _bsl and (_h - _bsl) >= _sweepMin
@@ -1651,9 +1662,10 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
     _sweepFresh = not na(_lastSweepBar) and _bi - _lastSweepBar < _freshBars
     _sweepOld = not na(_lastSweepBar) and _bi - _lastSweepBar >= _freshBars
 
-    // Sweep output explicitly exposes Invalid(3) and Expired(4).
+    // Sweep output exposes terminal Invalid(3), Expired(4), and Abandoned(5).
     _sweepStatus = _dolState == 3 ? 3 :
      _dolState == 4 ? 4 :
+     _dolState == 5 ? 5 :
      _sweepFresh ? 1 :
      _sweepOld ? 2 :
      0
@@ -1663,7 +1675,7 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
     _dolTarget = _dolState == 0 ? na : _dolTargetLocked
     _dolStatus = _dolState
     _dolDistance = na(_dolTarget) ? na : math.abs(_dolTarget - _c)
-    _dolAlign = _dolDir == 0 or _biasDir == 0 ? 0 : _dolDir == _biasDir ? 1 : -1
+    _dolAlign = _dolState != 1 or _dolDir == 0 or _biasDir == 0 ? 0 : _dolDir == _biasDir ? 1 : -1
 
     // FVG creation
     _bullFvgNew = not na(high[3]) and low[1] > high[3]
@@ -1822,6 +1834,7 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
     float _poiHigh = na
     float _poiLow = na
     int _poiStatus = 0
+    int _poiCreatedBar = na
 
     if _biasDir == 1
         if _bullObActive and (not _bullFvgActive or _bullObDist <= _bullFvgDist)
@@ -1829,11 +1842,13 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
             _poiHigh := _bullObHigh
             _poiLow := _bullObLow
             _poiStatus := _bullObStatus
+            _poiCreatedBar := _bullObCreatedBar
         else if _bullFvgActive
             _poiType := 2
             _poiHigh := _bullFvgHighActive
             _poiLow := _bullFvgLowActive
             _poiStatus := _bullFvgStatus
+            _poiCreatedBar := _bullFvgCreatedBar
 
     if _biasDir == -1
         if _bearObActive and (not _bearFvgActive or _bearObDist <= _bearFvgDist)
@@ -1841,11 +1856,17 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
             _poiHigh := _bearObHigh
             _poiLow := _bearObLow
             _poiStatus := _bearObStatus
+            _poiCreatedBar := _bearObCreatedBar
         else if _bearFvgActive
             _poiType := -2
             _poiHigh := _bearFvgHighActive
             _poiLow := _bearFvgLowActive
             _poiStatus := _bearFvgStatus
+            _poiCreatedBar := _bearFvgCreatedBar
+
+    // Maturity is separate from lifecycle: an immature POI remains visible but cannot score.
+    _poiAgeBars = not na(_poiCreatedBar) ? _bi - _poiCreatedBar : 0
+    _poiMature = _poiType != 0 and not na(_poiCreatedBar) and _poiAgeBars >= _poiMinAgeBars
 
     _poiMid = not na(_poiHigh) and not na(_poiLow) ? (_poiHigh + _poiLow) / 2.0 : na
     _poiDist = not na(_poiHigh) and not na(_poiLow) ? (_c >= _poiLow and _c <= _poiHigh ? 0.0 : math.min(math.abs(_c - _poiHigh), math.abs(_c - _poiLow))) : na
@@ -1855,22 +1876,22 @@ amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>
 
     // Only an ACTIVE DOL can upgrade a POI to Main; terminal DOL states add no confluence.
     _dolActiveAligned = _dolState == 1 and _dolAlign == 1
-    _poiPriority = _poiType == 0 ? 0 : _poiAlign == 1 and _poiLocationOk and _dolActiveAligned ? 2 : _poiAlign == 1 ? 1 : 0
+    _poiPriority = _poiType == 0 or not _poiMature ? 0 : _poiAlign == 1 and _poiLocationOk and _dolActiveAligned ? 2 : _poiAlign == 1 ? 1 : 0
 
     // Return order remains exactly aligned with the existing request.security unpack.
     [_o, _h, _l, _c, _lastPH, _lastPL, _biasDir, _mssDir, _bullMss, _bearMss, _lockedInvalid, _invalidStatus, _rh, _rl, _eq, _eqLow, _eqHigh, _priceZone, _locStatus, _bsl, _ssl, _lastSweepDir, _sweepStatus, _sweptPrice, _sweepExtreme, _dolDir, _dolTarget, _dolStatus, _dolDistance, _dolAlign, _poiType, _poiHigh, _poiLow, _poiMid, _poiDist, _poiStatus, _poiAlign, _poiLoc, _poiPriority]
 
-[amyDashV2_o15, amyDashV2_h15, amyDashV2_l15, amyDashV2_c15, amyDashV2_protectedHigh, amyDashV2_protectedLow, amyDashV2_biasDir, amyDashV2_mssDir, amyDashV2_bullMssNow, amyDashV2_bearMssNow, amyDashV2_invalidLevel, amyDashV2_invalidStatus, amyDashV2_rangeHigh, amyDashV2_rangeLow, amyDashV2_eq, amyDashV2_eqLow, amyDashV2_eqHigh, amyDashV2_priceZone, amyDashV2_locationStatus, amyDashV2_bsl, amyDashV2_ssl, amyDashV2_sweepDir, amyDashV2_sweepStatus, amyDashV2_sweptPrice, amyDashV2_sweepExtreme, amyDashV2_dolDir, amyDashV2_dolTarget, amyDashV2_dolStatus, amyDashV2_dolDistance, amyDashV2_dolAlign, amyDashV2_poiType, amyDashV2_poiHigh, amyDashV2_poiLow, amyDashV2_poiMid, amyDashV2_poiDistance, amyDashV2_poiStatus, amyDashV2_poiAlign, amyDashV2_poiLocation, amyDashV2_poiPriority] = request.security(syminfo.tickerid, "15", amyDashV2_engine(amyDashV2_swingLen, amyDashV2_sweepFreshBars, amyDashV2_nearInvalidAtr, amyDashV2_dispMult, amyDashV2_minSweepTicks), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
+[amyDashV2_o15, amyDashV2_h15, amyDashV2_l15, amyDashV2_c15, amyDashV2_protectedHigh, amyDashV2_protectedLow, amyDashV2_biasDir, amyDashV2_mssDir, amyDashV2_bullMssNow, amyDashV2_bearMssNow, amyDashV2_invalidLevel, amyDashV2_invalidStatus, amyDashV2_rangeHigh, amyDashV2_rangeLow, amyDashV2_eq, amyDashV2_eqLow, amyDashV2_eqHigh, amyDashV2_priceZone, amyDashV2_locationStatus, amyDashV2_bsl, amyDashV2_ssl, amyDashV2_sweepDir, amyDashV2_sweepStatus, amyDashV2_sweptPrice, amyDashV2_sweepExtreme, amyDashV2_dolDir, amyDashV2_dolTarget, amyDashV2_dolStatus, amyDashV2_dolDistance, amyDashV2_dolAlign, amyDashV2_poiType, amyDashV2_poiHigh, amyDashV2_poiLow, amyDashV2_poiMid, amyDashV2_poiDistance, amyDashV2_poiStatus, amyDashV2_poiAlign, amyDashV2_poiLocation, amyDashV2_poiPriority] = request.security(syminfo.tickerid, "15", amyDashV2_engine(amyDashV2_swingLen, amyDashV2_sweepFreshBars, amyDashV2_nearInvalidAtr, amyDashV2_dispMult, amyDashV2_minSweepTicks, amyDashV2_poiMinAgeBars), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_off)
 
 amyDashV2_biasText = amyDashV2_biasDir == 1 ? "BUY CTX" : amyDashV2_biasDir == -1 ? "SELL CTX" : "NO CLEAR BIAS"
 amyDashV2_arahText = amyDashV2_biasDir == 1 ? "NAIK" : amyDashV2_biasDir == -1 ? "TURUN" : "BELUM JELAS"
 amyDashV2_mssText = amyDashV2_mssDir == 1 ? "M15 Bullish" : amyDashV2_mssDir == -1 ? "M15 Bearish" : "M15 Neutral"
 
 amyDashV2_sweepText = amyDashV2_sweepDir == 1 ? "SSL Swept" : amyDashV2_sweepDir == -1 ? "BSL Swept" : "None"
-amyDashV2_sweepStatusText = amyDashV2_sweepStatus == 1 ? "Fresh" : amyDashV2_sweepStatus == 2 ? "Old" : amyDashV2_sweepStatus == 3 ? "Invalid" : amyDashV2_sweepStatus == 4 ? "Expired" : "None"
+amyDashV2_sweepStatusText = amyDashV2_sweepStatus == 1 ? "Fresh" : amyDashV2_sweepStatus == 2 ? "Old" : amyDashV2_sweepStatus == 3 ? "Invalid" : amyDashV2_sweepStatus == 4 ? "Expired" : amyDashV2_sweepStatus == 5 ? "Abandoned" : "None"
 
 amyDashV2_dolText = amyDashV2_dolDir == 1 ? "Draw to BSL" : amyDashV2_dolDir == -1 ? "Draw to SSL" : "Neutral"
-amyDashV2_dolStatusText = amyDashV2_dolStatus == 1 ? "Active" : amyDashV2_dolStatus == 2 ? "Reached" : amyDashV2_dolStatus == 3 ? "Invalid" : amyDashV2_dolStatus == 4 ? "Expired" : "Neutral"
+amyDashV2_dolStatusText = amyDashV2_dolStatus == 1 ? "Active" : amyDashV2_dolStatus == 2 ? "Reached" : amyDashV2_dolStatus == 3 ? "Invalid" : amyDashV2_dolStatus == 4 ? "Expired" : amyDashV2_dolStatus == 5 ? "Abandoned" : "Neutral"
 amyDashV2_dolAlignText = amyDashV2_dolAlign == 1 ? "With Bias" : amyDashV2_dolAlign == -1 ? "Against Bias" : "Neutral"
 
 amyDashV2_poiTypeText = amyDashV2_poiType == 1 ? "Bull OB" : amyDashV2_poiType == 2 ? "Bull FVG" : amyDashV2_poiType == -1 ? "Bear OB" : amyDashV2_poiType == -2 ? "Bear FVG" : "None"
@@ -1900,7 +1921,7 @@ amyDashV2_neutralBg = color.new(color.gray, 55)
 amyDashV2_warnBg = color.new(color.orange, 20)
 
 amyDashV2_biasBg = amyDashV2_biasDir == 1 ? amyDashV2_buyBg : amyDashV2_biasDir == -1 ? amyDashV2_sellBg : amyDashV2_warnBg
-amyDashV2_dolBg = amyDashV2_dolStatus == 3 ? amyDashV2_sellBg : amyDashV2_dolStatus == 4 ? amyDashV2_neutralBg : amyDashV2_dolStatus == 2 ? amyDashV2_warnBg : amyDashV2_dolDir == 1 ? amyDashV2_buyBg : amyDashV2_dolDir == -1 ? amyDashV2_sellBg : amyDashV2_neutralBg
+amyDashV2_dolBg = amyDashV2_dolStatus == 3 ? amyDashV2_sellBg : amyDashV2_dolStatus == 5 ? amyDashV2_warnBg : amyDashV2_dolStatus == 4 ? amyDashV2_neutralBg : amyDashV2_dolStatus == 2 ? amyDashV2_warnBg : amyDashV2_dolDir == 1 ? amyDashV2_buyBg : amyDashV2_dolDir == -1 ? amyDashV2_sellBg : amyDashV2_neutralBg
 amyDashV2_invalidBg = amyDashV2_invalidStatus == 2 ? amyDashV2_sellBg : amyDashV2_invalidStatus == 1 ? amyDashV2_warnBg : amyDashV2_invalidStatus == 0 ? amyDashV2_buyBg : amyDashV2_neutralBg
 amyDashV2_locBg = amyDashV2_locationStatus == 1 ? amyDashV2_buyBg : amyDashV2_locationStatus == -1 ? amyDashV2_warnBg : amyDashV2_neutralBg
 amyDashV2_poiBg = amyDashV2_poiPriority == 2 ? (amyDashV2_poiType > 0 ? amyDashV2_buyBg : amyDashV2_sellBg) : amyDashV2_poiPriority == 1 ? amyDashV2_warnBg : amyDashV2_neutralBg
@@ -2066,17 +2087,17 @@ amyEntryV2_bearSweep = amyDashV2_sweepStatus == 1 and amyDashV2_sweepDir == -1 ?
  amyDashV2_sweepStatus == 2 and amyDashV2_sweepDir == -1 ? 8 :
  amyEntryV2_ltfSweepDir == -1 ? 12 : 0
 
-// --- Layer 3: POI Alignment (max 15 pts) ---
-// New POI states: Fresh receives full weight, Active reduced weight,
-// Mitigated residual weight, Failed/None no score.
+// --- Layer 3: Mature POI Alignment (max 10 pts) ---
+// Fresh is potential only, Active has confirmed interaction, Mitigated has residual value.
+// Immature POIs are already blocked by amyDashV2_poiPriority == 0.
 amyEntryV2_bullPoi = amyDashV2_poiPriority >= 1 and amyDashV2_poiAlign == 1 and amyDashV2_biasDir == 1 ?
- (amyDashV2_poiStatus == 1 ? (amyDashV2_poiLocation == -1 ? 15 : 8) :
-  amyDashV2_poiStatus == 2 ? (amyDashV2_poiLocation == -1 ? 12 : 6) :
-  amyDashV2_poiStatus == 3 ? (amyDashV2_poiLocation == -1 ? 5 : 3) : 0) : 0
+ (amyDashV2_poiStatus == 1 ? (amyDashV2_poiLocation == -1 ? 6 : 3) :
+  amyDashV2_poiStatus == 2 ? (amyDashV2_poiLocation == -1 ? 10 : 5) :
+  amyDashV2_poiStatus == 3 ? (amyDashV2_poiLocation == -1 ? 3 : 1) : 0) : 0
 amyEntryV2_bearPoi = amyDashV2_poiPriority >= 1 and amyDashV2_poiAlign == 1 and amyDashV2_biasDir == -1 ?
- (amyDashV2_poiStatus == 1 ? (amyDashV2_poiLocation == 1 ? 15 : 8) :
-  amyDashV2_poiStatus == 2 ? (amyDashV2_poiLocation == 1 ? 12 : 6) :
-  amyDashV2_poiStatus == 3 ? (amyDashV2_poiLocation == 1 ? 5 : 3) : 0) : 0
+ (amyDashV2_poiStatus == 1 ? (amyDashV2_poiLocation == 1 ? 6 : 3) :
+  amyDashV2_poiStatus == 2 ? (amyDashV2_poiLocation == 1 ? 10 : 5) :
+  amyDashV2_poiStatus == 3 ? (amyDashV2_poiLocation == 1 ? 3 : 1) : 0) : 0
 
 // Bonus: Rejection dari POI (+5)
 amyEntryV2_bullPoiBonus = amyEntryV2_bullPoiReject ? 5 : (amyEntryV2_inPoi and amyDashV2_biasDir == 1 ? 3 : 0)
@@ -2084,7 +2105,7 @@ amyEntryV2_bearPoiBonus = amyEntryV2_bearPoiReject ? 5 : (amyEntryV2_inPoi and a
 
 // --- Layer 4: DOL Active (max 10 pts) ---
 // Only Active(1) contributes directional confluence.
-// Reached/Invalid/Expired are terminal and must not keep adding score.
+// Reached/Invalid/Expired/Abandoned are terminal and must not keep adding score.
 amyEntryV2_bullDol = amyDashV2_dolStatus == 1 and amyDashV2_dolDir == 1 ? 10 : 0
 amyEntryV2_bearDol = amyDashV2_dolStatus == 1 and amyDashV2_dolDir == -1 ? 10 : 0
 
@@ -2148,6 +2169,7 @@ amyEntryV2_nearDol = not na(amyEntryV2_dolDist) and amyEntryV2_dolDist <= amyEnt
 amyEntryV2_dolReachedEvent = amyDashV2_dolStatus == 2 and amyDashV2_dolStatus[1] != 2
 amyEntryV2_dolInvalidEvent = amyDashV2_dolStatus == 3 and amyDashV2_dolStatus[1] != 3
 amyEntryV2_dolExpiredEvent = amyDashV2_dolStatus == 4 and amyDashV2_dolStatus[1] != 4
+amyEntryV2_dolAbandonedEvent = amyDashV2_dolStatus == 5 and amyDashV2_dolStatus[1] != 5
 
 // Invalid proximity
 amyEntryV2_invDist = not na(amyDashV2_invalidLevel) ? math.abs(close - amyDashV2_invalidLevel) : na
@@ -2256,6 +2278,10 @@ if amyEntryV2_show
             _narr := amyEntryV2_addLine(_narr, "⚠ DOL invalid")
             _narr := amyEntryV2_addLine(_narr, "Harga close melewati sweep extreme")
             _importance := 2
+        else if amyEntryV2_dolAbandonedEvent
+            _narr := amyEntryV2_addLine(_narr, "↪ DOL ditinggalkan")
+            _narr := amyEntryV2_addLine(_narr, "Bias M15 berubah, target lama tidak lagi relevan")
+            _importance := 1
         else if amyEntryV2_dolExpiredEvent
             _narr := amyEntryV2_addLine(_narr, "⌛ DOL expired")
             _narr := amyEntryV2_addLine(_narr, "Target tidak tercapai dalam freshness window")
