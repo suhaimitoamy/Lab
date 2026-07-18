@@ -1,0 +1,274 @@
+from pathlib import Path
+
+target = Path("ICT_yang_di_sempurnakan_dashboard_bottom_left_fixed_BACKTEST_WORKING_COPY.pine")
+text = target.read_text(encoding="utf-8")
+
+
+def replace_once(old: str, new: str, label: str) -> None:
+    global text
+    count = text.count(old)
+    if count != 1:
+        raise RuntimeError(f"{label}: expected exactly 1 match, found {count}")
+    text = text.replace(old, new, 1)
+
+
+def replace_between(start_marker: str, end_marker: str, replacement: str, label: str) -> None:
+    global text
+    start = text.find(start_marker)
+    if start < 0:
+        raise RuntimeError(f"{label}: start marker missing")
+    end = text.find(end_marker, start)
+    if end < 0:
+        raise RuntimeError(f"{label}: end marker missing")
+    text = text[:start] + replacement.rstrip() + "\n\n" + text[end:]
+
+
+replace_once(
+    'amyDashV2_minSweepTicks = input.int(1, "False Sweep Filter Ticks", minval=0, maxval=20, group=amyDashV2_group)\n',
+    'amyDashV2_minSweepTicks = input.int(1, "False Sweep Filter Ticks", minval=0, maxval=20, group=amyDashV2_group)\n'
+    'amyDashV2_poiMinAgeBars = input.int(1, "POI Min Age (M15 Bars)", minval=0, maxval=8, group=amyDashV2_group, tooltip="POI tetap terlihat sejak terbentuk, tetapi baru boleh memberi skor setelah bertahan sejumlah closed M15 bar ini.")\n',
+    "add POI maturity input",
+)
+
+replace_once(
+    'amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks) =>',
+    'amyDashV2_engine(_swingLen, _freshBars, _nearAtr, _dispMult, _minSweepTicks, _poiMinAgeBars) =>',
+    "extend engine signature",
+)
+
+replace_once(
+    '    // FIX DOL: persistent state 0=None, 1=Active, 2=Reached, 3=Invalid, 4=Expired.\n',
+    '    // DOL persistent state: 0=None, 1=Active, 2=Reached, 3=Invalid, 4=Expired, 5=Abandoned.\n',
+    "document DOL Abandoned state",
+)
+
+replace_between(
+    '    // Bias change invalidates the previous sweep/DOL context.\n',
+    '    _nearInvalid = ',
+    '''    // Bias changes are resolved by the DOL state machine below.
+    // An Active DOL becomes Abandoned(5) instead of disappearing into None(0).''',
+    "remove immediate DOL reset",
+)
+
+replace_between(
+    '    // FIX DOL ORDERING: resolve the old DOL before any new sweep can replace it.\n',
+    '    // New sweep detection occurs only after the old DOL has been resolved.\n',
+    '''    // Resolve the old DOL before any new sweep can replace it.
+    // Priority on the same closed candle: Reached > Invalid > Abandoned > Expired.
+    bool _dolReachedNow = false
+    bool _dolInvalidNow = false
+    bool _dolExpiredNow = false
+    bool _dolAbandonedNow = false
+    bool _dolTerminalNow = false
+
+    if _dolState == 1
+        // No same-candle reach; target remains the level locked at sweep creation.
+        _dolReachedNow := not na(_dolStartBar) and _bi > _dolStartBar and not na(_dolTargetLocked) and
+         ((_dolDirLocked == 1 and _h >= _dolTargetLocked) or
+          (_dolDirLocked == -1 and _l <= _dolTargetLocked))
+
+        // Structural invalidation uses candle close beyond the locked sweep extreme.
+        _dolInvalidNow := not na(_sweepExtremeLocked) and
+         ((_dolDirLocked == 1 and _c < _sweepExtremeLocked) or
+          (_dolDirLocked == -1 and _c > _sweepExtremeLocked))
+
+        // A changed parent bias makes the old target irrelevant without calling it price failure.
+        _dolAbandonedNow := _biasChanged
+
+        // Expire exactly at the configured freshness boundary.
+        _dolExpiredNow := not na(_dolStartBar) and _bi - _dolStartBar >= _freshBars
+
+        if _dolReachedNow
+            _dolState := 2
+            _dolTerminalNow := true
+        else if _dolInvalidNow
+            _dolState := 3
+            _dolTerminalNow := true
+        else if _dolAbandonedNow
+            _dolState := 5
+            _dolTerminalNow := true
+        else if _dolExpiredNow
+            _dolState := 4
+            _dolTerminalNow := true
+
+    // If there is no Active DOL to abandon, a bias change clears stale terminal context.
+    else if _biasChanged
+        _lastSweepDir := 0
+        _lastSweepBar := na
+        _sweptPrice := na
+        _sweepExtreme := na
+        _dolState := 0
+        _dolDirLocked := 0
+        _dolStartBar := na
+        _dolTargetLocked := na
+        _sweepExtremeLocked := na''',
+    "replace DOL resolution",
+)
+
+replace_once(
+    '''    // Sweep output explicitly exposes Invalid(3) and Expired(4).
+    _sweepStatus = _dolState == 3 ? 3 :
+     _dolState == 4 ? 4 :
+     _sweepFresh ? 1 :
+     _sweepOld ? 2 :
+     0''',
+    '''    // Sweep output exposes terminal Invalid(3), Expired(4), and Abandoned(5).
+    _sweepStatus = _dolState == 3 ? 3 :
+     _dolState == 4 ? 4 :
+     _dolState == 5 ? 5 :
+     _sweepFresh ? 1 :
+     _sweepOld ? 2 :
+     0''',
+    "extend sweep status",
+)
+
+replace_once(
+    '    _dolAlign = _dolDir == 0 or _biasDir == 0 ? 0 : _dolDir == _biasDir ? 1 : -1',
+    '    _dolAlign = _dolState != 1 or _dolDir == 0 or _biasDir == 0 ? 0 : _dolDir == _biasDir ? 1 : -1',
+    "neutralize terminal DOL alignment",
+)
+
+replace_between(
+    '    int _poiType = 0\n',
+    '    _poiMid = ',
+    '''    int _poiType = 0
+    float _poiHigh = na
+    float _poiLow = na
+    int _poiStatus = 0
+    int _poiCreatedBar = na
+
+    if _biasDir == 1
+        if _bullObActive and (not _bullFvgActive or _bullObDist <= _bullFvgDist)
+            _poiType := 1
+            _poiHigh := _bullObHigh
+            _poiLow := _bullObLow
+            _poiStatus := _bullObStatus
+            _poiCreatedBar := _bullObCreatedBar
+        else if _bullFvgActive
+            _poiType := 2
+            _poiHigh := _bullFvgHighActive
+            _poiLow := _bullFvgLowActive
+            _poiStatus := _bullFvgStatus
+            _poiCreatedBar := _bullFvgCreatedBar
+
+    if _biasDir == -1
+        if _bearObActive and (not _bearFvgActive or _bearObDist <= _bearFvgDist)
+            _poiType := -1
+            _poiHigh := _bearObHigh
+            _poiLow := _bearObLow
+            _poiStatus := _bearObStatus
+            _poiCreatedBar := _bearObCreatedBar
+        else if _bearFvgActive
+            _poiType := -2
+            _poiHigh := _bearFvgHighActive
+            _poiLow := _bearFvgLowActive
+            _poiStatus := _bearFvgStatus
+            _poiCreatedBar := _bearFvgCreatedBar
+
+    // Maturity is separate from lifecycle: an immature POI remains visible but cannot score.
+    _poiAgeBars = not na(_poiCreatedBar) ? _bi - _poiCreatedBar : 0
+    _poiMature = _poiType != 0 and not na(_poiCreatedBar) and _poiAgeBars >= _poiMinAgeBars''',
+    "add POI maturity state",
+)
+
+replace_once(
+    '    _poiPriority = _poiType == 0 ? 0 : _poiAlign == 1 and _poiLocationOk and _dolActiveAligned ? 2 : _poiAlign == 1 ? 1 : 0',
+    '    _poiPriority = _poiType == 0 or not _poiMature ? 0 : _poiAlign == 1 and _poiLocationOk and _dolActiveAligned ? 2 : _poiAlign == 1 ? 1 : 0',
+    "gate POI priority by maturity",
+)
+
+replace_once(
+    'amyDashV2_engine(amyDashV2_swingLen, amyDashV2_sweepFreshBars, amyDashV2_nearInvalidAtr, amyDashV2_dispMult, amyDashV2_minSweepTicks)',
+    'amyDashV2_engine(amyDashV2_swingLen, amyDashV2_sweepFreshBars, amyDashV2_nearInvalidAtr, amyDashV2_dispMult, amyDashV2_minSweepTicks, amyDashV2_poiMinAgeBars)',
+    "pass POI maturity input",
+)
+
+replace_once(
+    'amyDashV2_sweepStatusText = amyDashV2_sweepStatus == 1 ? "Fresh" : amyDashV2_sweepStatus == 2 ? "Old" : amyDashV2_sweepStatus == 3 ? "Invalid" : amyDashV2_sweepStatus == 4 ? "Expired" : "None"',
+    'amyDashV2_sweepStatusText = amyDashV2_sweepStatus == 1 ? "Fresh" : amyDashV2_sweepStatus == 2 ? "Old" : amyDashV2_sweepStatus == 3 ? "Invalid" : amyDashV2_sweepStatus == 4 ? "Expired" : amyDashV2_sweepStatus == 5 ? "Abandoned" : "None"',
+    "update sweep text",
+)
+
+replace_once(
+    'amyDashV2_dolStatusText = amyDashV2_dolStatus == 1 ? "Active" : amyDashV2_dolStatus == 2 ? "Reached" : amyDashV2_dolStatus == 3 ? "Invalid" : amyDashV2_dolStatus == 4 ? "Expired" : "Neutral"',
+    'amyDashV2_dolStatusText = amyDashV2_dolStatus == 1 ? "Active" : amyDashV2_dolStatus == 2 ? "Reached" : amyDashV2_dolStatus == 3 ? "Invalid" : amyDashV2_dolStatus == 4 ? "Expired" : amyDashV2_dolStatus == 5 ? "Abandoned" : "Neutral"',
+    "update DOL text",
+)
+
+replace_once(
+    'amyDashV2_dolBg = amyDashV2_dolStatus == 3 ? amyDashV2_sellBg : amyDashV2_dolStatus == 4 ? amyDashV2_neutralBg : amyDashV2_dolStatus == 2 ? amyDashV2_warnBg : amyDashV2_dolDir == 1 ? amyDashV2_buyBg : amyDashV2_dolDir == -1 ? amyDashV2_sellBg : amyDashV2_neutralBg',
+    'amyDashV2_dolBg = amyDashV2_dolStatus == 3 ? amyDashV2_sellBg : amyDashV2_dolStatus == 5 ? amyDashV2_warnBg : amyDashV2_dolStatus == 4 ? amyDashV2_neutralBg : amyDashV2_dolStatus == 2 ? amyDashV2_warnBg : amyDashV2_dolDir == 1 ? amyDashV2_buyBg : amyDashV2_dolDir == -1 ? amyDashV2_sellBg : amyDashV2_neutralBg',
+    "update DOL background",
+)
+
+replace_between(
+    '// --- Layer 3: POI Alignment (max 15 pts) ---\n',
+    '// Bonus: Rejection dari POI (+5)\n',
+    '''// --- Layer 3: Mature POI Alignment (max 10 pts) ---
+// Fresh is potential only, Active has confirmed interaction, Mitigated has residual value.
+// Immature POIs are already blocked by amyDashV2_poiPriority == 0.
+amyEntryV2_bullPoi = amyDashV2_poiPriority >= 1 and amyDashV2_poiAlign == 1 and amyDashV2_biasDir == 1 ?
+ (amyDashV2_poiStatus == 1 ? (amyDashV2_poiLocation == -1 ? 6 : 3) :
+  amyDashV2_poiStatus == 2 ? (amyDashV2_poiLocation == -1 ? 10 : 5) :
+  amyDashV2_poiStatus == 3 ? (amyDashV2_poiLocation == -1 ? 3 : 1) : 0) : 0
+amyEntryV2_bearPoi = amyDashV2_poiPriority >= 1 and amyDashV2_poiAlign == 1 and amyDashV2_biasDir == -1 ?
+ (amyDashV2_poiStatus == 1 ? (amyDashV2_poiLocation == 1 ? 6 : 3) :
+  amyDashV2_poiStatus == 2 ? (amyDashV2_poiLocation == 1 ? 10 : 5) :
+  amyDashV2_poiStatus == 3 ? (amyDashV2_poiLocation == 1 ? 3 : 1) : 0) : 0''',
+    "recalibrate POI scoring",
+)
+
+replace_once(
+    '// Reached/Invalid/Expired are terminal and must not keep adding score.',
+    '// Reached/Invalid/Expired/Abandoned are terminal and must not keep adding score.',
+    "update DOL scoring comment",
+)
+
+replace_once(
+    '''amyEntryV2_dolReachedEvent = amyDashV2_dolStatus == 2 and amyDashV2_dolStatus[1] != 2
+amyEntryV2_dolInvalidEvent = amyDashV2_dolStatus == 3 and amyDashV2_dolStatus[1] != 3
+amyEntryV2_dolExpiredEvent = amyDashV2_dolStatus == 4 and amyDashV2_dolStatus[1] != 4''',
+    '''amyEntryV2_dolReachedEvent = amyDashV2_dolStatus == 2 and amyDashV2_dolStatus[1] != 2
+amyEntryV2_dolInvalidEvent = amyDashV2_dolStatus == 3 and amyDashV2_dolStatus[1] != 3
+amyEntryV2_dolExpiredEvent = amyDashV2_dolStatus == 4 and amyDashV2_dolStatus[1] != 4
+amyEntryV2_dolAbandonedEvent = amyDashV2_dolStatus == 5 and amyDashV2_dolStatus[1] != 5''',
+    "add abandoned event",
+)
+
+replace_between(
+    '        // --- DOL terminal events ---\n',
+    '        // --- DOL active near target ---\n',
+    '''        // --- DOL terminal events ---
+        else if amyEntryV2_dolInvalidEvent
+            _narr := amyEntryV2_addLine(_narr, "⚠ DOL invalid")
+            _narr := amyEntryV2_addLine(_narr, "Harga close melewati sweep extreme")
+            _importance := 2
+        else if amyEntryV2_dolAbandonedEvent
+            _narr := amyEntryV2_addLine(_narr, "↪ DOL ditinggalkan")
+            _narr := amyEntryV2_addLine(_narr, "Bias M15 berubah, target lama tidak lagi relevan")
+            _importance := 1
+        else if amyEntryV2_dolExpiredEvent
+            _narr := amyEntryV2_addLine(_narr, "⌛ DOL expired")
+            _narr := amyEntryV2_addLine(_narr, "Target tidak tercapai dalam freshness window")
+            _importance := 1
+        else if amyEntryV2_dolReachedEvent
+            _narr := amyEntryV2_addLine(_narr, "🎯 Target " + amyEntryV2_dolName(amyDashV2_dolDir) + " tercapai")
+            _narr := amyEntryV2_addLine(_narr, "Hati-hati reaksi baru, jangan kejar harga")
+            _importance := 2''',
+    "add abandoned narration",
+)
+
+required = [
+    'amyDashV2_poiMinAgeBars = input.int(1',
+    '_dolState := 5',
+    '_dolState == 5 ? 5',
+    'amyDashV2_dolStatus == 5 ? "Abandoned"',
+    'amyEntryV2_dolAbandonedEvent',
+    '_poiPriority = _poiType == 0 or not _poiMature ? 0',
+    'amyDashV2_poiStatus == 2 ? (amyDashV2_poiLocation == -1 ? 10 : 5)',
+]
+for marker in required:
+    if marker not in text:
+        raise RuntimeError(f"post-patch marker missing: {marker}")
+
+target.write_text(text, encoding="utf-8")
