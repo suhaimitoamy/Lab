@@ -1988,7 +1988,7 @@ if amyDashV2_show and barstate.islast
 if not amyDashV2_show and barstate.islast
     table.clear(amyDashV2_table, 0, 0, 1, 15)
 
-//==================== AMY ASSISTANT V3 — VALIDATED CLAIMS + OBSERVATION ====================//
+//==================== AMY ASSISTANT V4 — VALIDATED CLAIMS + OBSERVATION ====================//
 amyEntryV2_group = "AMY Assistant V4"
 amyEntryV2_show = input.bool(true, "Show Entry Assistant", group=amyEntryV2_group)
 amyEntryV2_showChartNotes = input.bool(true, "Show Chart Narration", group=amyEntryV2_group)
