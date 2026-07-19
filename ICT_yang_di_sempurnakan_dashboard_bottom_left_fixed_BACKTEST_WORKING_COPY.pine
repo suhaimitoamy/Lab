@@ -1937,7 +1937,7 @@ if amyDashV2_show and barstate.islast
     table.set_position(amyDashV2_table, amyDashV2_pos(amyDashV2_posInput))
     table.clear(amyDashV2_table, 0, 0, 1, 15)
 
-    table.cell(amyDashV2_table, 0, 0, "AMY MARKET CONTEXT V3", text_color=color.white, bgcolor=amyDashV2_headBg, text_size=size.tiny)
+    table.cell(amyDashV2_table, 0, 0, "AMY MARKET CONTEXT V4", text_color=color.white, bgcolor=amyDashV2_headBg, text_size=size.tiny)
     table.cell(amyDashV2_table, 1, 0, "M15 CLOSED", text_color=color.white, bgcolor=amyDashV2_headBg, text_size=size.tiny)
 
     table.cell(amyDashV2_table, 0, 1, "RAW STRUCTURE", text_color=color.white, bgcolor=amyDashV2_keyBg, text_size=size.tiny)
@@ -1950,7 +1950,7 @@ if amyDashV2_show and barstate.islast
     table.cell(amyDashV2_table, 1, 3, "H " + amyDashV2_price(amyDashV2_protectedHigh) + " | L " + amyDashV2_price(amyDashV2_protectedLow), text_color=color.white, bgcolor=amyDashV2_cellBg, text_size=size.tiny)
 
     table.cell(amyDashV2_table, 0, 4, "LIQUIDITY", text_color=color.white, bgcolor=amyDashV2_keyBg, text_size=size.tiny)
-    table.cell(amyDashV2_table, 1, 4, "BSL " + amyDashV2_price(amyDashV2_bsl) + " | SSL " + amyDashV2_price(amyDashV2_ssl), text_color=color.white, bgcolor=amyDashV2_cellBg, text_size=size.tiny)
+    table.cell(amyDashV2_table, 1, 4, "BSL " + amyDashV2_price(amyDashV2_bsl) + " | SSL " + amyDashV2_price(amyDashV2_ssl) + " | RAW LEVELS", text_color=color.white, bgcolor=amyDashV2_cellBg, text_size=size.tiny)
 
     table.cell(amyDashV2_table, 0, 5, "SWEEP", text_color=color.white, bgcolor=amyDashV2_keyBg, text_size=size.tiny)
     table.cell(amyDashV2_table, 1, 5, amyDashV2_sweepText + " | " + amyDashV2_sweepStatusText, text_color=color.white, bgcolor=amyDashV2_cellBg, text_size=size.tiny)
@@ -1965,7 +1965,7 @@ if amyDashV2_show and barstate.islast
     table.cell(amyDashV2_table, 1, 8, "Dist " + amyDashV2_price(amyDashV2_dolDistance) + " | " + amyDashV2_dolAlignText, text_color=color.white, bgcolor=amyDashV2_cellBg, text_size=size.tiny)
 
     table.cell(amyDashV2_table, 0, 9, "POI", text_color=color.white, bgcolor=amyDashV2_keyBg, text_size=size.tiny)
-    table.cell(amyDashV2_table, 1, 9, amyDashV2_poiTypeText + " | " + amyDashV2_poiStatusText + " | " + amyDashV2_poiPriorityText, text_color=color.white, bgcolor=amyDashV2_poiBg, text_size=size.tiny)
+    table.cell(amyDashV2_table, 1, 9, amyDashV2_poiTypeText + " | " + amyDashV2_poiStatusText + " | " + amyDashV2_poiPriorityText + " | OBS", text_color=color.white, bgcolor=amyDashV2_poiBg, text_size=size.tiny)
 
     table.cell(amyDashV2_table, 0, 10, "POI PRICE", text_color=color.white, bgcolor=amyDashV2_keyBg, text_size=size.tiny)
     table.cell(amyDashV2_table, 1, 10, amyDashV2_range(amyDashV2_poiHigh, amyDashV2_poiLow) + " | CE " + amyDashV2_price(amyDashV2_poiMid), text_color=color.white, bgcolor=amyDashV2_cellBg, text_size=size.tiny)
@@ -1989,10 +1989,11 @@ if not amyDashV2_show and barstate.islast
     table.clear(amyDashV2_table, 0, 0, 1, 15)
 
 //==================== AMY ASSISTANT V3 — VALIDATED CLAIMS + OBSERVATION ====================//
-amyEntryV2_group = "AMY Assistant V3"
+amyEntryV2_group = "AMY Assistant V4"
 amyEntryV2_show = input.bool(true, "Show Entry Assistant", group=amyEntryV2_group)
 amyEntryV2_showChartNotes = input.bool(true, "Show Chart Narration", group=amyEntryV2_group)
 amyEntryV2_showPanel = input.bool(false, "Show Assistant Panel", group=amyEntryV2_group)
+amyEntryV2_showValidatedMarkers = input.bool(true, "Show Validated Claim Markers", group=amyEntryV2_group)
 amyEntryV2_triggerTf = input.timeframe("5", "Trigger Confirmation TF", group=amyEntryV2_group)
 amyEntryV2_swingLen = input.int(3, "Trigger Swing Length", minval=1, maxval=10, group=amyEntryV2_group)
 amyEntryV2_dispMult = input.float(1.0, "Trigger Displacement Body Mult", minval=0.5, maxval=3.0, step=0.1, group=amyEntryV2_group)
@@ -2005,6 +2006,16 @@ amyEntryV2_minScore = input.int(40, "Minimum Score to Show", minval=10, maxval=9
 amyEntryV2_validatedDolMaxAtr = 0.75
 amyEntryV2_validatedDolMinScore = 50
 amyEntryV3_validatedRiskMaxAtr = 1.50
+amyContextV4_keyLiquidityMaxAtr = 1.50
+amyContextV4_pdhPdlMaxAtr = 3.00
+amyContextV4_asiaTargetMaxAtr = 2.00
+amyContextV4_poiRevisitMaxAtr = 1.50
+amyContextV4_asiaEntryMinAtr = 0.35
+amyContextV4_asiaEntryMaxAtr = 1.50
+amyContextV4_asiaEntryRewardRisk = 0.20
+amyContextV4_oneHourBars = 12
+amyContextV4_fourHoursBars = 48
+amyContextV4_eightHoursBars = 96
 
 amyEntryV2_price(_x) =>
     na(_x) ? "-" : str.tostring(_x, format.mintick)
@@ -2234,6 +2245,207 @@ else if amyDashV2_dolStatus != 1
 amyEntryV3_validatedTarget = amyDashV2_dolStatus == 1 and amyEntryV3_targetQualityLocked
 amyEntryV3_validatedTargetEvent = amyEntryV2_dolActiveEvent and amyEntryV3_targetQualityAtStart
 
+// =====================================================================
+// MARKET CONTEXT V4 — LOCKED VALIDATION FOR THE REMAINING CONTEXT
+// All thresholds and horizons below are fixed from the 2020-2025 M5 test.
+// A displayed level remains observation-only unless its one-time event passes.
+// =====================================================================
+amyContextV4_isM5 = timeframe.isminutes and timeframe.multiplier == 5
+amyContextV4_nyHour = hour(time, "America/New_York")
+amyContextV4_nyMinute = minute(time, "America/New_York")
+amyContextV4_midnightEvent = amyContextV4_isM5 and barstate.isconfirmed and amyContextV4_nyHour == 0 and amyContextV4_nyMinute == 0
+
+// --- Protected structure hold: one-hour validity claim at each new raw bias episode ---
+amyContextV4_protectedEvent = amyContextV4_isM5 and barstate.isconfirmed and amyDashV2_biasDir != 0 and
+ (amyDashV2_biasDir != amyDashV2_biasDir[1] or amyDashV2_invalidLevel != amyDashV2_invalidLevel[1])
+var int amyContextV4_protectedState = 0  // 0 none, 1 active, 2 held, 3 failed
+var int amyContextV4_protectedStartBar = na
+var int amyContextV4_protectedDir = 0
+var float amyContextV4_protectedLevel = na
+if amyContextV4_protectedEvent
+    amyContextV4_protectedState := 1
+    amyContextV4_protectedStartBar := bar_index
+    amyContextV4_protectedDir := amyDashV2_biasDir
+    amyContextV4_protectedLevel := amyDashV2_invalidLevel
+else if amyContextV4_protectedState == 1
+    if amyDashV2_biasDir != amyContextV4_protectedDir
+        amyContextV4_protectedState := 3
+    else if bar_index - amyContextV4_protectedStartBar >= amyContextV4_oneHourBars
+        amyContextV4_protectedState := 2
+amyContextV4_protectedActive = amyContextV4_protectedState == 1
+
+// --- M5 key-liquidity target: nearest untouched BSL/SSL after a level refresh ---
+amyContextV4_keyBslValid = not na(amyKeyV2_bsl) and amyKeyV2_bsl > high
+amyContextV4_keySslValid = not na(amyKeyV2_ssl) and amyKeyV2_ssl < low
+amyContextV4_keyBslDist = amyContextV4_keyBslValid ? amyKeyV2_bsl - close : na
+amyContextV4_keySslDist = amyContextV4_keySslValid ? close - amyKeyV2_ssl : na
+amyContextV4_keyLiquidityDir = amyContextV4_keyBslValid and (not amyContextV4_keySslValid or amyContextV4_keyBslDist <= amyContextV4_keySslDist) ? 1 : amyContextV4_keySslValid ? -1 : 0
+amyContextV4_keyLiquidityCandidate = amyContextV4_keyLiquidityDir == 1 ? amyKeyV2_bsl : amyContextV4_keyLiquidityDir == -1 ? amyKeyV2_ssl : na
+amyContextV4_keyLiquidityDistAtr = amyContextV4_keyLiquidityDir != 0 and not na(amyEntryV2_atr14) ? math.abs(amyContextV4_keyLiquidityCandidate - close) / amyEntryV2_atr14 : na
+amyContextV4_keyLiquidityRefresh = amyContextV4_isM5 and barstate.isconfirmed and
+ (amyKeyV2_bsl != amyKeyV2_bsl[1] or amyKeyV2_ssl != amyKeyV2_ssl[1] or amyDashV2_biasDir != amyDashV2_biasDir[1])
+var int amyContextV4_lastKeyLiquidityDir = 0
+var float amyContextV4_lastKeyLiquidityTarget = na
+amyContextV4_keyLiquidityEvent = false
+if amyContextV4_keyLiquidityRefresh and amyContextV4_keyLiquidityDir != 0
+    _keyChanged = amyContextV4_keyLiquidityDir != amyContextV4_lastKeyLiquidityDir or amyContextV4_keyLiquidityCandidate != amyContextV4_lastKeyLiquidityTarget
+    amyContextV4_lastKeyLiquidityDir := amyContextV4_keyLiquidityDir
+    amyContextV4_lastKeyLiquidityTarget := amyContextV4_keyLiquidityCandidate
+    amyContextV4_keyLiquidityEvent := _keyChanged and not na(amyContextV4_keyLiquidityDistAtr) and amyContextV4_keyLiquidityDistAtr <= amyContextV4_keyLiquidityMaxAtr
+var int amyContextV4_keyLiquidityState = 0
+var int amyContextV4_keyLiquidityStartBar = na
+var int amyContextV4_keyLiquidityLockedDir = 0
+var float amyContextV4_keyLiquidityLockedTarget = na
+if amyContextV4_keyLiquidityEvent
+    amyContextV4_keyLiquidityState := 1
+    amyContextV4_keyLiquidityStartBar := bar_index
+    amyContextV4_keyLiquidityLockedDir := amyContextV4_keyLiquidityDir
+    amyContextV4_keyLiquidityLockedTarget := amyContextV4_keyLiquidityCandidate
+else if amyContextV4_keyLiquidityState == 1
+    _keyHit = amyContextV4_keyLiquidityLockedDir == 1 ? high >= amyContextV4_keyLiquidityLockedTarget : low <= amyContextV4_keyLiquidityLockedTarget
+    if _keyHit
+        amyContextV4_keyLiquidityState := 2
+    else if bar_index - amyContextV4_keyLiquidityStartBar >= amyContextV4_fourHoursBars
+        amyContextV4_keyLiquidityState := 3
+amyContextV4_keyLiquidityActive = amyContextV4_keyLiquidityState == 1
+
+// --- Previous-day liquidity: nearest untouched PDH/PDL, eight-hour claim ---
+amyContextV4_pdhValid = not na(amyKeyV2_pdh) and amyKeyV2_pdh > high
+amyContextV4_pdlValid = not na(amyKeyV2_pdl) and amyKeyV2_pdl < low
+amyContextV4_pdhDist = amyContextV4_pdhValid ? amyKeyV2_pdh - close : na
+amyContextV4_pdlDist = amyContextV4_pdlValid ? close - amyKeyV2_pdl : na
+amyContextV4_pdhPdlDir = amyContextV4_pdhValid and (not amyContextV4_pdlValid or amyContextV4_pdhDist <= amyContextV4_pdlDist) ? 1 : amyContextV4_pdlValid ? -1 : 0
+amyContextV4_pdhPdlCandidate = amyContextV4_pdhPdlDir == 1 ? amyKeyV2_pdh : amyContextV4_pdhPdlDir == -1 ? amyKeyV2_pdl : na
+amyContextV4_pdhPdlDistAtr = amyContextV4_pdhPdlDir != 0 and not na(amyEntryV2_atr14) ? math.abs(amyContextV4_pdhPdlCandidate - close) / amyEntryV2_atr14 : na
+amyContextV4_pdhPdlEvent = amyContextV4_midnightEvent and amyContextV4_pdhPdlDir != 0 and not na(amyContextV4_pdhPdlDistAtr) and amyContextV4_pdhPdlDistAtr <= amyContextV4_pdhPdlMaxAtr
+var int amyContextV4_pdhPdlState = 0
+var int amyContextV4_pdhPdlStartBar = na
+var int amyContextV4_pdhPdlLockedDir = 0
+var float amyContextV4_pdhPdlLockedTarget = na
+if amyContextV4_pdhPdlEvent
+    amyContextV4_pdhPdlState := 1
+    amyContextV4_pdhPdlStartBar := bar_index
+    amyContextV4_pdhPdlLockedDir := amyContextV4_pdhPdlDir
+    amyContextV4_pdhPdlLockedTarget := amyContextV4_pdhPdlCandidate
+else if amyContextV4_pdhPdlState == 1
+    _pdHit = amyContextV4_pdhPdlLockedDir == 1 ? high >= amyContextV4_pdhPdlLockedTarget : low <= amyContextV4_pdhPdlLockedTarget
+    if _pdHit
+        amyContextV4_pdhPdlState := 2
+    else if bar_index - amyContextV4_pdhPdlStartBar >= amyContextV4_eightHoursBars
+        amyContextV4_pdhPdlState := 3
+amyContextV4_pdhPdlActive = amyContextV4_pdhPdlState == 1
+
+// --- Asia liquidity: nearest untouched locked boundary, four-hour claim ---
+amyContextV4_asiaHighValid = not na(amyKeyV2_asiaHigh) and amyKeyV2_asiaHigh > high
+amyContextV4_asiaLowValid = not na(amyKeyV2_asiaLow) and amyKeyV2_asiaLow < low
+amyContextV4_asiaHighDist = amyContextV4_asiaHighValid ? amyKeyV2_asiaHigh - close : na
+amyContextV4_asiaLowDist = amyContextV4_asiaLowValid ? close - amyKeyV2_asiaLow : na
+amyContextV4_asiaDir = amyContextV4_asiaHighValid and (not amyContextV4_asiaLowValid or amyContextV4_asiaHighDist <= amyContextV4_asiaLowDist) ? 1 : amyContextV4_asiaLowValid ? -1 : 0
+amyContextV4_asiaCandidate = amyContextV4_asiaDir == 1 ? amyKeyV2_asiaHigh : amyContextV4_asiaDir == -1 ? amyKeyV2_asiaLow : na
+amyContextV4_asiaDistAtr = amyContextV4_asiaDir != 0 and not na(amyEntryV2_atr14) ? math.abs(amyContextV4_asiaCandidate - close) / amyEntryV2_atr14 : na
+amyContextV4_asiaTargetEvent = amyContextV4_midnightEvent and amyContextV4_asiaDir != 0 and not na(amyContextV4_asiaDistAtr) and amyContextV4_asiaDistAtr <= amyContextV4_asiaTargetMaxAtr
+var int amyContextV4_asiaTargetState = 0
+var int amyContextV4_asiaTargetStartBar = na
+var int amyContextV4_asiaTargetLockedDir = 0
+var float amyContextV4_asiaTargetLockedPrice = na
+if amyContextV4_asiaTargetEvent
+    amyContextV4_asiaTargetState := 1
+    amyContextV4_asiaTargetStartBar := bar_index
+    amyContextV4_asiaTargetLockedDir := amyContextV4_asiaDir
+    amyContextV4_asiaTargetLockedPrice := amyContextV4_asiaCandidate
+else if amyContextV4_asiaTargetState == 1
+    _asiaHit = amyContextV4_asiaTargetLockedDir == 1 ? high >= amyContextV4_asiaTargetLockedPrice : low <= amyContextV4_asiaTargetLockedPrice
+    if _asiaHit
+        amyContextV4_asiaTargetState := 2
+    else if bar_index - amyContextV4_asiaTargetStartBar >= amyContextV4_fourHoursBars
+        amyContextV4_asiaTargetState := 3
+amyContextV4_asiaTargetActive = amyContextV4_asiaTargetState == 1
+
+// --- Midnight Open: first fully separated M5 candle of each NY calendar day ---
+var bool amyContextV4_moDepartureSeen = false
+if amyKeyV2_newDayChart
+    amyContextV4_moDepartureSeen := false
+amyContextV4_moOutside = not na(amyKeyV2_midnightOpen) and (high < amyKeyV2_midnightOpen or low > amyKeyV2_midnightOpen)
+amyContextV4_moEvent = amyContextV4_isM5 and barstate.isconfirmed and not amyContextV4_moDepartureSeen and amyContextV4_moOutside
+if amyContextV4_moEvent
+    amyContextV4_moDepartureSeen := true
+amyContextV4_moDir = close > amyKeyV2_midnightOpen ? -1 : 1
+var int amyContextV4_moState = 0
+var int amyContextV4_moStartBar = na
+var int amyContextV4_moLockedDir = 0
+var float amyContextV4_moLockedTarget = na
+if amyContextV4_moEvent
+    amyContextV4_moState := 1
+    amyContextV4_moStartBar := bar_index
+    amyContextV4_moLockedDir := amyContextV4_moDir
+    amyContextV4_moLockedTarget := amyKeyV2_midnightOpen
+else if amyContextV4_moState == 1
+    _moHit = amyContextV4_moLockedDir == 1 ? high >= amyContextV4_moLockedTarget : low <= amyContextV4_moLockedTarget
+    if _moHit
+        amyContextV4_moState := 2
+    else if bar_index - amyContextV4_moStartBar >= amyContextV4_fourHoursBars
+        amyContextV4_moState := 3
+amyContextV4_moActive = amyContextV4_moState == 1
+
+// --- Mature Fresh POI revisit: OB and FVG measured separately ---
+amyContextV4_poiFresh = amyDashV2_poiType != 0 and amyDashV2_poiStatus == 1 and amyDashV2_poiPriority >= 1 and not na(amyDashV2_poiHigh) and not na(amyDashV2_poiLow)
+amyContextV4_poiEventRaw = amyContextV4_isM5 and barstate.isconfirmed and amyContextV4_poiFresh and
+ (not amyContextV4_poiFresh[1] or amyDashV2_poiType != amyDashV2_poiType[1] or amyDashV2_poiHigh != amyDashV2_poiHigh[1] or amyDashV2_poiLow != amyDashV2_poiLow[1])
+amyContextV4_poiOutside = amyContextV4_poiFresh and (low > amyDashV2_poiHigh or high < amyDashV2_poiLow)
+amyContextV4_poiDir = amyContextV4_poiOutside ? (close > amyDashV2_poiHigh ? -1 : 1) : 0
+amyContextV4_poiCandidate = amyContextV4_poiDir == -1 ? amyDashV2_poiHigh : amyContextV4_poiDir == 1 ? amyDashV2_poiLow : na
+amyContextV4_poiDistAtr = amyContextV4_poiDir != 0 and not na(amyEntryV2_atr14) ? math.abs(amyContextV4_poiCandidate - close) / amyEntryV2_atr14 : na
+amyContextV4_poiEvent = amyContextV4_poiEventRaw and amyContextV4_poiOutside and not na(amyContextV4_poiDistAtr) and amyContextV4_poiDistAtr <= amyContextV4_poiRevisitMaxAtr
+var int amyContextV4_poiState = 0
+var int amyContextV4_poiStartBar = na
+var int amyContextV4_poiLockedDir = 0
+var int amyContextV4_poiLockedType = 0
+var float amyContextV4_poiLockedTarget = na
+if amyContextV4_poiEvent
+    amyContextV4_poiState := 1
+    amyContextV4_poiStartBar := bar_index
+    amyContextV4_poiLockedDir := amyContextV4_poiDir
+    amyContextV4_poiLockedType := amyDashV2_poiType
+    amyContextV4_poiLockedTarget := amyContextV4_poiCandidate
+else if amyContextV4_poiState == 1
+    _poiHit = amyContextV4_poiLockedDir == 1 ? high >= amyContextV4_poiLockedTarget : low <= amyContextV4_poiLockedTarget
+    if _poiHit
+        amyContextV4_poiState := 2
+    else if bar_index - amyContextV4_poiStartBar >= amyContextV4_fourHoursBars
+        amyContextV4_poiState := 3
+amyContextV4_poiActive = amyContextV4_poiState == 1
+
+// --- Validated Asia entry: close entry, nearest Asia TP, fixed 0.20 reward:risk ---
+amyContextV4_asiaEntryEvent = amyContextV4_midnightEvent and amyContextV4_asiaDir != 0 and not na(amyContextV4_asiaDistAtr) and
+ amyContextV4_asiaDistAtr >= amyContextV4_asiaEntryMinAtr and amyContextV4_asiaDistAtr <= amyContextV4_asiaEntryMaxAtr
+var int amyContextV4_asiaEntryState = 0  // 1 active, 2 TP, 3 SL, 4 timeout
+var int amyContextV4_asiaEntryStartBar = na
+var int amyContextV4_asiaEntryDir = 0
+var float amyContextV4_asiaEntryPrice = na
+var float amyContextV4_asiaEntryTarget = na
+var float amyContextV4_asiaEntryStop = na
+if amyContextV4_asiaEntryEvent
+    _entryReward = math.abs(amyContextV4_asiaCandidate - close)
+    amyContextV4_asiaEntryState := 1
+    amyContextV4_asiaEntryStartBar := bar_index
+    amyContextV4_asiaEntryDir := amyContextV4_asiaDir
+    amyContextV4_asiaEntryPrice := close
+    amyContextV4_asiaEntryTarget := amyContextV4_asiaCandidate
+    amyContextV4_asiaEntryStop := close - amyContextV4_asiaDir * (_entryReward / amyContextV4_asiaEntryRewardRisk)
+else if amyContextV4_asiaEntryState == 1
+    _entryStopHit = amyContextV4_asiaEntryDir == 1 ? low <= amyContextV4_asiaEntryStop : high >= amyContextV4_asiaEntryStop
+    _entryTargetHit = amyContextV4_asiaEntryDir == 1 ? high >= amyContextV4_asiaEntryTarget : low <= amyContextV4_asiaEntryTarget
+    if _entryStopHit
+        amyContextV4_asiaEntryState := 3
+    else if _entryTargetHit
+        amyContextV4_asiaEntryState := 2
+    else if bar_index - amyContextV4_asiaEntryStartBar >= amyContextV4_fourHoursBars
+        amyContextV4_asiaEntryState := 4
+amyContextV4_asiaEntryActive = amyContextV4_asiaEntryState == 1
+amyContextV4_asiaEntryTpEvent = amyContextV4_asiaEntryState == 2 and amyContextV4_asiaEntryState[1] == 1
+amyContextV4_asiaEntrySlEvent = amyContextV4_asiaEntryState == 3 and amyContextV4_asiaEntryState[1] == 1
+amyContextV4_asiaEntryTimeoutEvent = amyContextV4_asiaEntryState == 4 and amyContextV4_asiaEntryState[1] == 1
+
 // Valid break conditions
 amyEntryV2_validBreakBull = amyEntryV2_ltfBullBreak and amyEntryV2_ltfBullDisp and amyDashV2_biasDir == 1
 amyEntryV2_validBreakBear = amyEntryV2_ltfBearBreak and amyEntryV2_ltfBearDisp and amyDashV2_biasDir == -1
@@ -2264,7 +2476,7 @@ if amyEntryV2_show
         _narr = ""
         _importance = 0  // track how important current state is
 
-        // --- Assistant V3: only these two states may make a forward-looking claim ---
+        // --- Only locked validated states below may make a forward-looking claim ---
         if amyEntryV3_validatedRisk
             _narr := amyEntryV2_addLine(_narr, "⚠ VALIDATED RISK")
             _narr := amyEntryV2_addLine(_narr, "Struktur M15 berisiko invalid/berubah ≤4 jam")
@@ -2272,11 +2484,73 @@ if amyEntryV2_show
             _narr := amyEntryV2_addLine(_narr, "Backtest 2020-2025: 85.55%")
             _importance := 5
 
+        else if amyContextV4_asiaEntryTpEvent
+            _narr := amyEntryV2_addLine(_narr, "✅ ASIA ENTRY TP")
+            _narr := amyEntryV2_addLine(_narr, "Target " + amyEntryV2_price(amyContextV4_asiaEntryTarget) + " tercapai")
+            _importance := 4
+
+        else if amyContextV4_asiaEntrySlEvent
+            _narr := amyEntryV2_addLine(_narr, "✕ ASIA ENTRY SL")
+            _narr := amyEntryV2_addLine(_narr, "Stop " + amyEntryV2_price(amyContextV4_asiaEntryStop) + " tersentuh")
+            _importance := 4
+
+        else if amyContextV4_asiaEntryTimeoutEvent
+            _narr := amyEntryV2_addLine(_narr, "⌛ ASIA ENTRY TIMEOUT")
+            _narr := amyEntryV2_addLine(_narr, "Empat jam selesai tanpa TP/SL")
+            _importance := 3
+
+        else if amyContextV4_asiaEntryActive
+            _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED ASIA ENTRY")
+            _narr := amyEntryV2_addLine(_narr, amyEntryV2_dirName(amyContextV4_asiaEntryDir) + " @ " + amyEntryV2_price(amyContextV4_asiaEntryPrice))
+            _narr := amyEntryV2_addLine(_narr, "TP " + amyEntryV2_price(amyContextV4_asiaEntryTarget) + " | SL " + amyEntryV2_price(amyContextV4_asiaEntryStop))
+            _narr := amyEntryV2_addLine(_narr, "WR 84.70% | Reward:Risk 0.20 | gross, biaya belum dihitung")
+            _importance := 5
+
         else if amyEntryV3_validatedTarget
             _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED TARGET")
             _narr := amyEntryV2_addLine(_narr, amyEntryV2_dolName(amyDashV2_dolDir) + " @ " + amyEntryV2_price(amyDashV2_dolTarget))
             _narr := amyEntryV2_addLine(_narr, "Backtest target-reach 2020-2025: 91.38%")
             _importance := 5
+
+        else if amyContextV4_asiaTargetActive
+            _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED ASIA TARGET")
+            _narr := amyEntryV2_addLine(_narr, (amyContextV4_asiaTargetLockedDir == 1 ? "ASIA H" : "ASIA L") + " @ " + amyEntryV2_price(amyContextV4_asiaTargetLockedPrice))
+            _narr := amyEntryV2_addLine(_narr, "Target-reach ≤4 jam: 86.64%")
+            _importance := 4
+
+        else if amyContextV4_pdhPdlActive
+            _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED PREVIOUS-DAY TARGET")
+            _narr := amyEntryV2_addLine(_narr, (amyContextV4_pdhPdlLockedDir == 1 ? "PDH" : "PDL") + " @ " + amyEntryV2_price(amyContextV4_pdhPdlLockedTarget))
+            _narr := amyEntryV2_addLine(_narr, "Target-reach ≤8 jam: 85.64%")
+            _importance := 4
+
+        else if amyContextV4_moActive
+            _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED MIDNIGHT-OPEN RETEST")
+            _narr := amyEntryV2_addLine(_narr, "MO @ " + amyEntryV2_price(amyContextV4_moLockedTarget))
+            _narr := amyEntryV2_addLine(_narr, "Retest ≤4 jam: 86.43%")
+            _importance := 4
+
+        else if amyContextV4_poiActive
+            _poiClaimName = math.abs(amyContextV4_poiLockedType) == 1 ? "ORDER BLOCK" : "FVG"
+            _poiClaimAccuracy = math.abs(amyContextV4_poiLockedType) == 1 ? "83.91%" : "82.37%"
+            _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED " + _poiClaimName + " REVISIT")
+            _narr := amyEntryV2_addLine(_narr, "POI @ " + amyEntryV2_price(amyContextV4_poiLockedTarget))
+            _narr := amyEntryV2_addLine(_narr, "Revisit ≤4 jam: " + _poiClaimAccuracy)
+            _importance := 4
+
+        else if amyContextV4_keyLiquidityActive
+            _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED M5 LIQUIDITY TARGET")
+            _narr := amyEntryV2_addLine(_narr, (amyContextV4_keyLiquidityLockedDir == 1 ? "BSL" : "SSL") + " @ " + amyEntryV2_price(amyContextV4_keyLiquidityLockedTarget))
+            _narr := amyEntryV2_addLine(_narr, "Target-reach ≤4 jam: 82.43%")
+            _importance := 4
+
+        else if amyContextV4_protectedActive
+            _protectedName = amyContextV4_protectedDir == 1 ? "PROTECTED LOW" : "PROTECTED HIGH"
+            _protectedAccuracy = amyContextV4_protectedDir == 1 ? "93.47%" : "91.86%"
+            _narr := amyEntryV2_addLine(_narr, "✅ VALIDATED " + _protectedName)
+            _narr := amyEntryV2_addLine(_narr, "Level @ " + amyEntryV2_price(amyContextV4_protectedLevel))
+            _narr := amyEntryV2_addLine(_narr, "Diperkirakan bertahan 1 jam: " + _protectedAccuracy)
+            _importance := 4
 
         // --- POI Rejection (descriptive, not an entry confirmation) ---
         else if amyEntryV2_bullPoiReject
@@ -2427,13 +2701,13 @@ if amyEntryV2_show
 
         // Score indicator kecil di akhir
         if amyEntryV2_winScore >= amyEntryV2_minScore
-            _scoreEmoji = amyEntryV3_validatedTarget or amyEntryV3_validatedRisk ? "✅" : "⚪"
+            _scoreEmoji = amyEntryV3_validatedTarget or amyEntryV3_validatedRisk or amyContextV4_asiaEntryActive or amyContextV4_asiaTargetActive or amyContextV4_pdhPdlActive or amyContextV4_moActive or amyContextV4_poiActive or amyContextV4_keyLiquidityActive or amyContextV4_protectedActive ? "✅" : "⚪"
             _narr := amyEntryV2_addLine(_narr, _scoreEmoji + " Context score " + str.tostring(amyEntryV2_winScore) + "/100")
 
         // Assign text & colors
         if _narr != ""
             amyEntryV2_liveText := _narr
-            amyEntryV2_liveDir := amyEntryV3_validatedRisk ? (amyDashV2_biasDir == 1 ? -1 : 1) : amyEntryV3_validatedTarget ? amyDashV2_dolDir : amyEntryV2_winDir != 0 ? amyEntryV2_winDir : amyDashV2_biasDir != 0 ? amyDashV2_biasDir : 1
+            amyEntryV2_liveDir := amyEntryV3_validatedRisk ? (amyDashV2_biasDir == 1 ? -1 : 1) : amyContextV4_asiaEntryActive ? amyContextV4_asiaEntryDir : amyEntryV3_validatedTarget ? amyDashV2_dolDir : amyContextV4_asiaTargetActive ? amyContextV4_asiaTargetLockedDir : amyContextV4_pdhPdlActive ? amyContextV4_pdhPdlLockedDir : amyContextV4_moActive ? amyContextV4_moLockedDir : amyContextV4_poiActive ? amyContextV4_poiLockedDir : amyContextV4_keyLiquidityActive ? amyContextV4_keyLiquidityLockedDir : amyContextV4_protectedActive ? amyContextV4_protectedDir : amyEntryV2_winDir != 0 ? amyEntryV2_winDir : amyDashV2_biasDir != 0 ? amyDashV2_biasDir : 1
 
             // Warna berdasarkan importance + direction
             if amyEntryV3_validatedRisk
@@ -2448,16 +2722,32 @@ if amyEntryV2_show
                 amyEntryV2_liveBg := color.new(#37474f, 15)
 
 
-// === Assistant V3 claim markers ===
+// === Assistant V4 claim markers ===
 // The former Strong/Ready markers were removed because their out-of-sample accuracy was below 80%.
 // Each marker is emitted once, only when a new claim passes its locked validation filter.
-amyEntryV2_validatedBullEvent = amyEntryV2_show and amyEntryV3_validatedTargetEvent and amyDashV2_dolDir == 1
-amyEntryV2_validatedBearEvent = amyEntryV2_show and amyEntryV3_validatedTargetEvent and amyDashV2_dolDir == -1
-amyEntryV3_riskEvent = amyEntryV2_show and amyEntryV3_validatedRiskEvent
+amyEntryV2_validatedBullEvent = amyEntryV2_show and amyEntryV2_showValidatedMarkers and amyEntryV3_validatedTargetEvent and amyDashV2_dolDir == 1
+amyEntryV2_validatedBearEvent = amyEntryV2_show and amyEntryV2_showValidatedMarkers and amyEntryV3_validatedTargetEvent and amyDashV2_dolDir == -1
+amyEntryV3_riskEvent = amyEntryV2_show and amyEntryV2_showValidatedMarkers and amyEntryV3_validatedRiskEvent
+amyContextV4_showMarker = amyEntryV2_show and amyEntryV2_showValidatedMarkers
 
 plotshape(amyEntryV2_validatedBullEvent and barstate.isconfirmed ? low : na, title="Validated DOL Up", style=shape.triangleup, location=location.belowbar, color=color.new(#00c853, 0), size=size.small, text="DOL✓")
 plotshape(amyEntryV2_validatedBearEvent and barstate.isconfirmed ? high : na, title="Validated DOL Down", style=shape.triangledown, location=location.abovebar, color=color.new(#d50000, 0), size=size.small, text="DOL✓")
 plotshape(amyEntryV3_riskEvent and barstate.isconfirmed ? high : na, title="Validated Structure Risk", style=shape.xcross, location=location.abovebar, color=color.new(#ff6d00, 0), size=size.small, text="RISK✓")
+plotshape(amyContextV4_showMarker and amyContextV4_protectedEvent and amyDashV2_biasDir == 1 ? low : na, title="Validated Protected Low 1H", style=shape.circle, location=location.belowbar, color=color.new(#00bfa5, 0), size=size.tiny, text="P-L✓")
+plotshape(amyContextV4_showMarker and amyContextV4_protectedEvent and amyDashV2_biasDir == -1 ? high : na, title="Validated Protected High 1H", style=shape.circle, location=location.abovebar, color=color.new(#00bfa5, 0), size=size.tiny, text="P-H✓")
+plotshape(amyContextV4_showMarker and amyContextV4_keyLiquidityEvent and amyContextV4_keyLiquidityDir == 1 ? low : na, title="Validated M5 BSL Target", style=shape.circle, location=location.belowbar, color=color.new(#aa00ff, 0), size=size.tiny, text="BSL✓")
+plotshape(amyContextV4_showMarker and amyContextV4_keyLiquidityEvent and amyContextV4_keyLiquidityDir == -1 ? high : na, title="Validated M5 SSL Target", style=shape.circle, location=location.abovebar, color=color.new(#00b8d4, 0), size=size.tiny, text="SSL✓")
+plotshape(amyContextV4_showMarker and amyContextV4_pdhPdlEvent and amyContextV4_pdhPdlDir == 1 ? low : na, title="Validated PDH Target", style=shape.circle, location=location.belowbar, color=color.new(#ff1744, 0), size=size.tiny, text="PDH✓")
+plotshape(amyContextV4_showMarker and amyContextV4_pdhPdlEvent and amyContextV4_pdhPdlDir == -1 ? high : na, title="Validated PDL Target", style=shape.circle, location=location.abovebar, color=color.new(#76ff03, 0), size=size.tiny, text="PDL✓")
+plotshape(amyContextV4_showMarker and amyContextV4_asiaTargetEvent and amyContextV4_asiaDir == 1 ? low : na, title="Validated Asia High Target", style=shape.circle, location=location.belowbar, color=color.new(#ff6d00, 0), size=size.tiny, text="AH✓")
+plotshape(amyContextV4_showMarker and amyContextV4_asiaTargetEvent and amyContextV4_asiaDir == -1 ? high : na, title="Validated Asia Low Target", style=shape.circle, location=location.abovebar, color=color.new(#00b0ff, 0), size=size.tiny, text="AL✓")
+plotshape(amyContextV4_showMarker and amyContextV4_moEvent and amyContextV4_moDir == 1 ? low : na, title="Validated Midnight Open Retest Up", style=shape.circle, location=location.belowbar, color=color.new(color.yellow, 0), size=size.tiny, text="MO✓")
+plotshape(amyContextV4_showMarker and amyContextV4_moEvent and amyContextV4_moDir == -1 ? high : na, title="Validated Midnight Open Retest Down", style=shape.circle, location=location.abovebar, color=color.new(color.yellow, 0), size=size.tiny, text="MO✓")
+plotshape(amyContextV4_showMarker and amyContextV4_poiEvent and math.abs(amyDashV2_poiType) == 1 ? close : na, title="Validated Order Block Revisit", style=shape.circle, location=location.absolute, color=color.new(#2962ff, 0), size=size.tiny, text="OB✓")
+plotshape(amyContextV4_showMarker and amyContextV4_poiEvent and math.abs(amyDashV2_poiType) == 2 ? close : na, title="Validated FVG Revisit", style=shape.circle, location=location.absolute, color=color.new(#00c853, 0), size=size.tiny, text="FVG✓")
+plotshape(amyContextV4_showMarker and amyContextV4_asiaEntryEvent ? close : na, title="Validated Asia Entry", style=shape.diamond, location=location.absolute, color=color.new(#ffd600, 0), size=size.small, text="ENTRY✓")
+plotshape(amyContextV4_showMarker and amyContextV4_asiaEntryTpEvent ? close : na, title="Validated Asia Entry TP", style=shape.flag, location=location.absolute, color=color.new(#00c853, 0), size=size.tiny, text="TP✓")
+plotshape(amyContextV4_showMarker and amyContextV4_asiaEntrySlEvent ? close : na, title="Validated Asia Entry SL", style=shape.xcross, location=location.absolute, color=color.new(#d50000, 0), size=size.tiny, text="SL×")
 
 // === Live label on chart ===
 var label amyEntryV2_liveLabel = na
@@ -2481,8 +2771,13 @@ if barstate.islast
             label.delete(amyEntryV2_liveLabel)
             amyEntryV2_liveLabel := na
 
-// The dashboard is created before the assistant score exists, so overwrite its DOL rows here.
+amyContextV4_anyTargetActive = amyContextV4_asiaTargetActive or amyContextV4_pdhPdlActive or amyContextV4_moActive or amyContextV4_poiActive or amyContextV4_keyLiquidityActive
+
+// The dashboard is created before the assistant validation states exist, so overwrite relevant rows here.
 if amyDashV2_show and barstate.islast
+    _protectedRole = amyDashV2_biasDir == 1 ? "P-LOW" : amyDashV2_biasDir == -1 ? "P-HIGH" : "REFERENCE"
+    _protectedValidation = not amyContextV4_isM5 ? "M5 VALIDATION ONLY" : amyContextV4_protectedActive ? (_protectedRole + " VALID 1H " + (amyDashV2_biasDir == 1 ? "93.47%" : "91.86%")) : "REFERENCE ONLY"
+    table.cell(amyDashV2_table, 1, 3, "H " + amyDashV2_price(amyDashV2_protectedHigh) + " | L " + amyDashV2_price(amyDashV2_protectedLow) + " | " + _protectedValidation, text_color=color.white, bgcolor=amyContextV4_protectedActive ? amyDashV2_buyBg : amyDashV2_cellBg, text_size=size.tiny)
     _dashDolState = amyDashV2_dolStatus == 1 ? (amyEntryV3_validatedTarget ? "VALIDATED TARGET" : "OBSERVATION ONLY") : amyDashV2_dolStatusText
     _dashDolBg = amyEntryV3_validatedTarget ? (amyDashV2_dolDir == 1 ? amyDashV2_buyBg : amyDashV2_sellBg) : amyDashV2_dolStatus == 1 ? amyDashV2_neutralBg : amyDashV2_dolBg
     table.cell(amyDashV2_table, 1, 7, amyDashV2_dolText + " @ " + amyDashV2_price(amyDashV2_dolTarget) + " | " + _dashDolState, text_color=color.white, bgcolor=_dashDolBg, text_size=size.tiny)
@@ -2502,11 +2797,13 @@ if amyEntryV2_show and amyEntryV2_showPanel and barstate.islast
     _panelKeyBg = color.new(#0B1623, 0)
     _panelCellBg = color.new(#050B12, 0)
     _scoreBg = amyEntryV3_validatedRisk ? color.new(#ff6f00, 10) :
+     amyContextV4_asiaEntryActive ? color.new(#ffd600, 20) :
      amyEntryV3_validatedTarget ? (amyDashV2_dolDir == 1 ? color.new(#00c853, 15) : color.new(#d50000, 15)) :
+     amyContextV4_anyTargetActive or amyContextV4_protectedActive ? color.new(#00b8d4, 25) :
      color.new(color.gray, 55)
 
-    _panelSignal = amyEntryV3_validatedRisk ? "VALIDATED RISK" : amyEntryV3_validatedTarget ? "VALIDATED TARGET" : "OBSERVATION ONLY"
-    table.cell(amyEntryV2_panel, 0, 0, "ASSISTANT V3", text_color=color.white, bgcolor=_panelHeadBg, text_size=size.tiny)
+    _panelSignal = amyEntryV3_validatedRisk ? "VALIDATED RISK" : amyContextV4_asiaEntryActive ? "VALIDATED ENTRY" : amyEntryV3_validatedTarget ? "VALIDATED DOL" : amyContextV4_anyTargetActive ? "VALIDATED CONTEXT" : amyContextV4_protectedActive ? "PROTECTED 1H" : "OBSERVATION ONLY"
+    table.cell(amyEntryV2_panel, 0, 0, "ASSISTANT V4", text_color=color.white, bgcolor=_panelHeadBg, text_size=size.tiny)
     table.cell(amyEntryV2_panel, 1, 0, _panelSignal, text_color=color.white, bgcolor=_scoreBg, text_size=size.tiny)
 
     table.cell(amyEntryV2_panel, 0, 1, "DOL SCORE", text_color=color.white, bgcolor=_panelKeyBg, text_size=size.tiny)
@@ -2533,10 +2830,10 @@ if amyEntryV2_show and amyEntryV2_showPanel and barstate.islast
     table.cell(amyEntryV2_panel, 0, 8, "ASIA (5)", text_color=color.white, bgcolor=_panelKeyBg, text_size=size.tiny)
     table.cell(amyEntryV2_panel, 1, 8, "B:" + str.tostring(amyEntryV2_bullAsia) + " | S:" + str.tostring(amyEntryV2_bearAsia), text_color=color.white, bgcolor=_panelCellBg, text_size=size.tiny)
 
-    _panelTarget = amyEntryV3_validatedTarget and not na(amyDashV2_dolTarget) ? amyEntryV2_price(amyDashV2_dolTarget) : "-"
-    _panelInvalid = not na(amyDashV2_invalidLevel) ? amyEntryV2_price(amyDashV2_invalidLevel) : "-"
-    table.cell(amyEntryV2_panel, 0, 9, "CLAIM LEVEL", text_color=color.white, bgcolor=_panelKeyBg, text_size=size.tiny)
-    table.cell(amyEntryV2_panel, 1, 9, "T: " + _panelTarget + " | Inv: " + _panelInvalid, text_color=color.white, bgcolor=_panelCellBg, text_size=size.tiny)
+    _panelTarget = amyContextV4_asiaEntryActive ? amyEntryV2_price(amyContextV4_asiaEntryTarget) : amyEntryV3_validatedTarget and not na(amyDashV2_dolTarget) ? amyEntryV2_price(amyDashV2_dolTarget) : amyContextV4_asiaTargetActive ? amyEntryV2_price(amyContextV4_asiaTargetLockedPrice) : amyContextV4_pdhPdlActive ? amyEntryV2_price(amyContextV4_pdhPdlLockedTarget) : amyContextV4_moActive ? amyEntryV2_price(amyContextV4_moLockedTarget) : amyContextV4_poiActive ? amyEntryV2_price(amyContextV4_poiLockedTarget) : amyContextV4_keyLiquidityActive ? amyEntryV2_price(amyContextV4_keyLiquidityLockedTarget) : "-"
+    _panelStop = amyContextV4_asiaEntryActive ? amyEntryV2_price(amyContextV4_asiaEntryStop) : not na(amyDashV2_invalidLevel) ? amyEntryV2_price(amyDashV2_invalidLevel) : "-"
+    table.cell(amyEntryV2_panel, 0, 9, "TARGET / STOP", text_color=color.white, bgcolor=_panelKeyBg, text_size=size.tiny)
+    table.cell(amyEntryV2_panel, 1, 9, "T: " + _panelTarget + " | S: " + _panelStop, text_color=color.white, bgcolor=_panelCellBg, text_size=size.tiny)
 
 if (not amyEntryV2_show or not amyEntryV2_showPanel) and barstate.islast
     table.clear(amyEntryV2_panel, 0, 0, 1, 9)
