@@ -1,0 +1,1 @@
+- [2026-06-30-pengertian-support-dan-resistance.md](2026-06-30-pengertian-support-dan-resistance.md)
