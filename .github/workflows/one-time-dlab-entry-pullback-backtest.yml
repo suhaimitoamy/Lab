@@ -20,6 +20,8 @@ jobs:
           fetch-depth: 0
 
       - name: Import locked D-LAB snapshot and append verified report only
+        env:
+          REPORT_B64: "Ci8vID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQovLyA9PT0gRkFTRSBCQUNLVEVTVCBHQUJVTkdBTjogRW50cnkgT3B0ICYgUHVsbGJhY2sg4oCUIDIwMjYtMDgtMTEgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci8vID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQovLyBTQ09QRSAvIExPQ0sKLy8gLSBQcm9kdWN0aW9uIGJhc2VsaW5lIHJlbWFpbnMgZnJvemVuOiBBbXktU01DLUQucGluZSBibG9iIGQ2ZTZkN2M5NzlkZDVhODUyYmRkZDk2NjFiZWYwNDgwY2FhMmViMzUuIE5PVCBDT1BJRUQgT1IgTU9ESUZJRUQgaGVyZS4KLy8gLSBXb3JraW5nIHNvdXJjZSBiZWZvcmUgdGhpcyByZXBvcnQgaXMgYnl0ZS1pZGVudGljYWwgdG8gQW15LVNNQy1ELUxBQi5waW5lIEAgY2YyOTE5NjQ3ZmVjNTk3YTQ0MGZhMjI1MmZiMjA0MWJkN2UwMmJjYi4KLy8gLSBLMS1LNiBsb2dpYy9yZXN1bHRzLCBOZXh0IE1vdmUgbG9naWMsIGFuZCBQdWxsYmFjayBkZWZpbml0aW9uIGFyZSBOT1QgY2hhbmdlZC4gVGhpcyBwaGFzZSBhcHBlbmRzIGNvbW1lbnRzL3Jlc3VsdHMgb25seS4KLy8gLSBEYXRhc2V0L3JlcGxheTogYXVkaXRlZCByYXcgWEFVVVNELCAyMDA0IHdhcm0tdXA7IHNjb3JlIDIwMDUtMjAyNiAoMjAyNiB0aHJvdWdoIEp1bCk7IHJvbGxpbmcgOHkgdHJhaW4gLT4gMXkgT09TOwovLyAgIDE1IE9PUyB3aW5kb3dzIDIwMTItMjAyNjsgbm8gc3ludGhldGljIGNhbmRsZXMuIEhvcml6b25zIHJlbWFpbiBNNT00OCwgTTE1PTMyLCBIMT0yNCBjbG9zZWQgYmFycy4KLy8gLSBLMSByZW1haW5zIFF1YWxpZmllZCBWYWxpZCBCcmVhayArIHNhbWUtZGlyZWN0aW9uIEludGVybmFsIFN0cnVjdHVyZS4gRXhlY3V0aW9uIHJlbWFpbnMgTkVYVCBPUEVOOyBvcHBvc2l0ZSBTd2luZyBpcyBsb2NrZWQgU0wuCi8vIC0gU2FtZS1jYW5kbGUgVFArU0wgZGVmYXVsdCByZW1haW5zIGNvbnNlcnZhdGl2ZSBTTC1maXJzdCBleGNlcHQgdGhlIGV4cGxpY2l0IHNlbnNpdGl2aXR5IGNvbXBhcmlzb24gYmVsb3cuCi8vCi8vIFJFUExBWSBJREVOVElUWSBDSEVDSwovLyAtIE0xNSBLMSBPT1MgZXZlbnRzIHJlcHJvZHVjZWQgZXhhY3RseTogODc4IHNpZ25hbHMvZXhlY3V0aW9ucy4KLy8gLSBEaXJlY3Rpb25hbCBzdXJ2aXZhbCByZXByb2R1Y2VkIGV4YWN0bHk6IDkwLjY2MDYlIChsb2NrZWQgcmVwb3J0IDkwLjY2JSkuCi8vIC0gQXQgMC40MFIgdGhlIFRQIGhpdC1yYXRlIHJlcHJvZHVjZWQgZXhhY3RseTogMzkuOTc3MiUgKGxvY2tlZCByZXBvcnQgMzkuOTglKS4KLy8gLSBUaGlzIHBoYXNlJ3MgdW5pZm9ybSBORVhULU9QRU4gUi1hY2NvdW50aW5nIGdpdmVzICswLjAxNTBSIGV4cGVjdGFuY3kgYXQgMC40MFI7IHByaW9yIGxvY2tlZCBLMS1LNiBjb21tZW50IHJlbWFpbnMKLy8gICBhdXRob3JpdGF0aXZlIGF0ICswLjAxNDZSIGFuZCBpcyBpbnRlbnRpb25hbGx5IG5vdCBvdmVyd3JpdHRlbi4gVGhlIDAuMDAwNFIgYWNjb3VudGluZyBkZWx0YSBkb2VzIG5vdCBjaGFuZ2UgcmFua2luZy4KLy8KLy8gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCi8vIEJBR0lBTiBBLjEg4oCUIEsxIE0xNSBUUCBTV0VFUCwgT09TIDIwMTItMjAyNgovLyBDb2x1bW5zOiBUUCB8IFRQIFdSIHwgRXhwZWN0YW5jeSB8IEhDIHdpbmRvd3MgKD49MzAgZXhlY3V0aW9ucyAvIDE1KS4gU2lnbmFsIHNldCBpcyB1bmNoYW5nZWQgYXQgTj04NzggZm9yIGV2ZXJ5IHJvdy4KLy8gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCi8vIDAuMjBSIHwgNjQuMTIlIHwgKzAuMDAzNlIgfCAxNS8xNQovLyAwLjMwUiB8IDUxLjAzJSB8ICswLjAxNTVSIHwgMTUvMTUKLy8gMC40MFIgfCAzOS45OCUgfCArMC4wMTUwUiB8IDE1LzE1ICAgPC0gY3VycmVudCBiYXNlbGluZSByZXBsYXk7IHByaW9yIGxvY2tlZCBleHBlY3RhbmN5ICswLjAxNDZSCi8vIDAuNTBSIHwgMzEuODklIHwgKzAuMDE1MFIgfCAxNS8xNQovLyAwLjYwUiB8IDI0Ljk0JSB8ICswLjAxMTJSIHwgMTUvMTUKLy8gMC43MFIgfCAxOS4xMyUgfCArMC4wMDMxUiB8IDE1LzE1Ci8vIDAuODBSIHwgMTUuNzIlIHwgKzAuMDA2N1IgfCAxNS8xNQovLyAwLjkwUiB8IDEzLjY3JSB8ICswLjAxMzhSIHwgMTUvMTUKLy8gMS4wMFIgfCAxMS4yOCUgfCArMC4wMTE4UiB8IDE1LzE1ICAgPC0gcm9idXN0bmVzcyByZW1haW5zIHBvc2l0aXZlOyBwcmlvciBsb2NrIGFsc28gcG9zaXRpdmUgKCswLjAxMTRSKQovLyAxLjEwUiB8ICA4LjQzJSB8ICswLjAwNDRSIHwgMTUvMTUKLy8gMS4yMFIgfCAgNy42MyUgfCArMC4wMTAyUiB8IDE1LzE1Ci8vIDEuMzBSIHwgIDYuMDQlIHwgKzAuMDEyMlIgfCAxNS8xNQovLyAxLjQwUiB8ICA0LjU2JSB8ICswLjAwNzFSIHwgMTUvMTUKLy8gMS41MFIgfCAgMy44NyUgfCArMC4wMDc5UiB8IDE1LzE1Ci8vCi8vIE9PUyBjb25zaXN0ZW5jeSBkZXRhaWwgZm9yIHRoZSBtYW51YWwgY2FuZGlkYXRlOgovLyAtIDAuMzBSIHBvc2l0aXZlLWV4cGVjdGFuY3kgd2luZG93czogOS8xNTsgMC40MFIgYmFzZWxpbmU6IDgvMTUuCi8vIC0gMC4zMFIgeWVhcmx5IFRQLVdSIHJhbmdlOiAzOC44MSUtNjEuMDIlLiBIQyByZW1haW5zIDE1LzE1LCBzbyB0aGUgV1IgZ2FpbiBpcyBub3QgcHJvZHVjZWQgYnkgZHJvcHBpbmcgc3BhcnNlIHllYXJzLgovLwovLyBCQUdJQU4gQS4yIOKAlCBTQU1FLUNBTkRMRSBUSUUtQlJFQUsgU0VOU0lUSVZJVFkKLy8gLSBCYXNlbGluZSAwLjQwUjogMC84NzggYW1iaWd1b3VzIHRyYWRlcyAoMC4wMDAlKTsgVFAtZmlyc3QgdnMgU0wtZmlyc3QgY2hhbmdlcyBuZWl0aGVyIFdSIG5vciBleHBlY3RhbmN5LgovLyAtIFNlbGVjdGVkIDAuMzBSOiAwLzg3OCBhbWJpZ3VvdXMgdHJhZGVzICgwLjAwMCUpOyBUUC1maXJzdCB2cyBTTC1maXJzdCBjaGFuZ2VzIG5laXRoZXIgV1Igbm9yIGV4cGVjdGFuY3kuCi8vIC0gQWNyb3NzIHRoZSBGVUxMIDAuMjBSLTEuNTBSIHN3ZWVwLCBvbmx5IDIgdW5pcXVlIEsxIHRyYWRlcyBldmVyIGJlY29tZSBhbWJpZ3VvdXMgYXQgYW55IHRlc3RlZCBUUCA9IDAuMjI3OCUgb2YgTj04NzguCi8vIC0gUGVyIGFmZmVjdGVkIFRQIGxldmVsOiAwLjIwUiwgMC42MFIgYW5kIDAuNzBSIGVhY2ggY29udGFpbiBvbmx5IDEgYW1iaWd1b3VzIHRyYWRlID0gMC4xMTM5JS4KLy8gLSBNYXhpbXVtIG9ic2VydmVkIFRQLWZpcnN0IHNoaWZ0OiArMC4xMTM5IHBlcmNlbnRhZ2UgcG9pbnQgVFAtV1IgYW5kICswLjAwMTk0UiBleHBlY3RhbmN5IChhdCAwLjcwUikuCi8vIENPTkNMVVNJT046IHRpZS1icmVhayBzZW5zaXRpdml0eSBpcyBub2lzZS1sZXZlbCBmb3IgSzEgTTE1IGFuZCBpcyBpbW1hdGVyaWFsIHRvIHRoZSAwLjMwUiB2cyAwLjQwUiBkZWNpc2lvbi4KLy8KLy8gQkFHSUFOIEEuMyDigJQgVFAgUkVDT01NRU5EQVRJT04KLy8gLSBTRUxFQ1RFRDogMC4zMFIgZm9yIG9wdGlvbmFsIG1hbnVhbC1leGVjdXRpb24gcmVmZXJlbmNlLgovLyAtIFRQLVdSIGltcHJvdmVzIGZyb20gMzkuOTglIGF0IDAuNDBSIHRvIDUxLjAzJSBhdCAwLjMwUiA9ICsxMS4wNSBwZXJjZW50YWdlIHBvaW50cyBhYnNvbHV0ZS4KLy8gLSBFeHBlY3RhbmN5IHJlbWFpbnMgcG9zaXRpdmUgYW5kIG1hcmdpbmFsbHkgaGlnaGVyIGluIHRoZSB1bmlmb3JtIHJlcGxheSAoKzAuMDE1NVIgdnMgKzAuMDE1MFIpLCB3aXRoIEhDIHVuY2hhbmdlZCAxNS8xNS4KLy8gLSAwLjIwUiBoYXMgYSBsYXJnZXIgV1IgZ2FpbiAoNjQuMTIlKSBidXQgc2FjcmlmaWNlcyBtb3N0IGV4cGVjdGFuY3kgKCswLjAwMzZSKSwgc28gaXQgaXMgcmVqZWN0ZWQgYXMgdG9vIGNvbXByZXNzZWQuCi8vIC0gSzEgc2lnbmFsL3RyaWdnZXIgaXRzZWxmIHJlbWFpbnMgZnJvemVuLiBUaGlzIGlzIGEgVFAtcmVmZXJlbmNlIGNvbmNsdXNpb24gb25seTsgbm8gUGluZSBleGVjdXRpb24gbG9naWMgaXMgY2hhbmdlZCBoZXJlLgovLwovLyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KLy8gQkFHSUFOIEIuMSDigJQgUFVMTEJBQ0sgU1RBVElTVElDQUwgVkFMSURBVElPTgovLyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KLy8gSU1QT1JUQU5UIERFRklOSVRJT04gTElNSVQ6IGNmMjkxOTYgZGVmaW5lcyBQdWxsYmFjayBPTkxZIGFzIG9wcG9zaXRlIGRpcmVjdGlvbiBvZiBOZXh0IE1vdmUgKFVQL0RPV04vV0FJVCkuCi8vIFRoZXJlIGlzIE5PIG51bWVyaWMgUHVsbGJhY2sgcHJpY2UgbGV2ZWwgaW4gdGhlIGZlYXR1cmUuIFRoZXJlZm9yZSB0aGlzIGRpYWdub3N0aWMgZG9lcyBOT1QgaW52ZW50IGFuIGVudHJ5IGxldmVsLgovLyBGb3IgYSBzY2FsZS1mcmVlIHBhdGgtb3JkZXIgdGVzdCwgZWFjaCBESVNDUkVURSBhY3Rpb25hYmxlIE5leHQtTW92ZSB0cmFuc2l0aW9uIHVzZXMgdGhlIHNpZ25hbCBjYW5kbGUgZXh0cmVtZXMgb25seToKLy8gLSBidWxsaXNoIE5leHQgTW92ZTogdmVyaWZpZWQgcHVsbGJhY2stZmlyc3QgPSBsYXRlciBwcmljZSBicmVha3Mgc2lnbmFsIExPVyBmaXJzdCwgdGhlbiBzdWJzZXF1ZW50bHkgYnJlYWtzIHNpZ25hbCBISUdIOwovLyAtIGJlYXJpc2ggTmV4dCBNb3ZlOiB2ZXJpZmllZCBwdWxsYmFjay1maXJzdCA9IGxhdGVyIHByaWNlIGJyZWFrcyBzaWduYWwgSElHSCBmaXJzdCwgdGhlbiBzdWJzZXF1ZW50bHkgYnJlYWtzIHNpZ25hbCBMT1cuCi8vIElmIGJvdGggZXh0cmVtZXMgYXJlIGZpcnN0IGJyb2tlbiBpbnNpZGUgdGhlIHNhbWUgYmFzZS1URiBjYW5kbGUsIG9yZGVyaW5nIGlzIHVua25vd2FibGUgZnJvbSBPSExDIGFuZCBpcyBOT1QgY291bnRlZCBzdWNjZXNzLgovLyBSZXN1bHRzIGFyZSBPT1MgMjAxMi0yMDI2IGF0IHRoZSBsb2NrZWQgaG9yaXpvbnM7IEhDIG1lYW5zID49MzAgZGlzY3JldGUgTmV4dC1Nb3ZlIHRyYW5zaXRpb25zIGluIGFuIE9PUyB5ZWFyLgovLwovLyBURiAgfCB2ZXJpZmllZCBwdWxsYmFjay1maXJzdCB8IGV2ZW50cyB8IDk1JSBXaWxzb24gaW50ZXJ2YWwgfCBhbWJpZ3VvdXMtZmlyc3QgfCBIQyB8IHllYXJseSBzdWNjZXNzIHJhbmdlCi8vIE01ICB8IDE5LjEzJSAoMTMyLzY5MCkgICAgICAgfCA2OTAgICAgfCAxNi4zNyUtMjIuMjMlICAgICAgIHwgNC4wNiUgKDI4KSAgICAgIHwxNS8xNXwgMTAuNDIlLTI2LjUzJQovLyBNMTUgfCAyNS4yMyUgKDE5ODkvNzg4NCkgICAgIHwgNzg4NCAgIHwgMjQuMjglLTI2LjIwJSAgICAgICB8IDYuNTclICg1MTgpICAgICB8MTUvMTV8IDIxLjgxJS0yOS43MSUKLy8gSDEgIHwgMjAuODAlICg0MjgvMjA1OCkgICAgICB8IDIwNTggICB8IDE5LjEwJS0yMi42MCUgICAgICAgfCA5LjQ4JSAoMTk1KSAgICAgfDE1LzE1fCAxNi4yOCUtMjQuNDQlCi8vCi8vIEsxLU0xNS1zcGVjaWZpYyBkaWFnbm9zdGljIChzYW1lIHBhdGgtb3JkZXIgZGVmaW5pdGlvbik6IG9ubHkgNDIvODc4ID0gNC43OCUgb2YgSzEgZXZlbnRzIHNob3dlZCBhIHZlcmlmaWVkCi8vIG9wcG9zaXRlLWV4dHJlbWUgcHVsbGJhY2sgZmlyc3QgYW5kIHRoZW4gY29udGludWF0aW9uOyAxNC84NzggPSAxLjU5JSB3ZXJlIHNhbWUtYmFyIG9yZGVyLWFtYmlndW91cy4KLy8gVGhpcyBjb25maXJtcyB0aGF0IHRoZSB2aXN1YWwgb3Bwb3NpdGUtZGlyZWN0aW9uIGxhYmVsIGlzIE5PVCBhIGhpZ2gtZnJlcXVlbmN5IHByZXJlcXVpc2l0ZSBiZWZvcmUgSzEgY29udGludWF0aW9uLgovLwovLyBCQUdJQU4gQi4yIOKAlCBQVUxMQkFDSyBBUyBLMSBNMTUgRU5UUlktVElNSU5HIEZJTFRFUgovLyAtIE5vIHN0YW5kYWxvbmUgc2ltdWxhdGlvbiBjYW4gYmUgZGVmaW5lZCB3aXRob3V0IGludmVudGluZyBhIG51bWVyaWMgUHVsbGJhY2sgbGV2ZWwsIHdoaWNoIHdvdWxkIHZpb2xhdGUgdGhlIGxvY2tlZCBjZjI5MTk2IGRlZmluaXRpb24uCi8vIC0gVGhlIG9ubHkgZXhpc3RpbmcgZXhhY3QgSzEtY29tcGF0aWJsZSB0b3VjaCBsZXZlbCBpbiBELUxBQiBpcyBhbXlEbGFiSzFUcmlnZ2VyID0gdGhlIGJyb2tlbiBRVkIgQlNML1NTTCBsZXZlbC4KLy8gLSBVc2luZyB0aGF0IGxldmVsIGFzIHRoZSByZXF1ZXN0ZWQgZGVsYXllZCBQdWxsYmFjayB0b3VjaCBpcyBJREVOVElDQUwgV0lUSCBLNSAoUVZCIFJFVEVTVCksIHNvIHRoZSBhbmFseXNpcyBpcyBOT1QgcmVwZWF0ZWQuCi8vIC0gTG9ja2VkIEsxIE5FWFQgT1BFTjogODc4IGV4ZWN1dGlvbnMgfCBUUCBXUiAzOS45OCUgfCBleHBlY3RhbmN5ICswLjAxNDZSIHwgSEMgMTUvMTUuCi8vIC0gTG9ja2VkIEs1IFFWQiBSRVRFU1Q6IDQzNCBleGVjdXRpb25zIHwgZmlsbCA0OS40MyUgfCBUUCBXUiA0My4wOSUgfCBleHBlY3RhbmN5ICswLjAwMjFSIHwgSEMgNy8xNS4KLy8gLSBLNSB2ZXJzdXMgSzE6IFdSICszLjExcHAsIGJ1dCBleHBlY3RhbmN5IC0wLjAxMjVSIGFuZCBIQyAtOCB3aW5kb3dzOyA1MC41NyUgb2YgSzEgb3Bwb3J0dW5pdGllcyBhcmUgbm90IGZpbGxlZC4KLy8KLy8gQkFHSUFOIEIuMyDigJQgUFVMTEJBQ0sgQ09OQ0xVU0lPTgovLyAtIFJFVEFJTiBQdWxsYmFjayBhcyBkYXNoYm9hcmQgdmlzdWFsL2NvbnRleHQgaW5mb3JtYXRpb24gb25seSB1bmRlciB0aGUgY3VycmVudCBkZWZpbml0aW9uLgovLyAtIERPIE5PVCBwcm9tb3RlIGl0IHRvIGFuIG9wdGlvbmFsIEsxIHRpbWluZyBmaWx0ZXI6IGl0IGhhcyBubyBuYXRpdmUgcHJpY2UgbGV2ZWwsIGFuZCB0aGUgb25seSBleGlzdGluZyBsZXZlbCBwcm94eSBpcyBLNSwKLy8gICB3aG9zZSBzbWFsbCBXUiBpbXByb3ZlbWVudCBpcyBhY2NvbXBhbmllZCBieSBtYXRlcmlhbGx5IHdvcnNlIGV4cGVjdGFuY3kgYW5kIEhDIHJvYnVzdG5lc3MuCi8vIC0gU3RhdGlzdGljYWwgcGF0aC1vcmRlciBldmlkZW5jZSBpcyBzdGFibGUgZW5vdWdoIHRvIG1lYXN1cmUgKEhDIDE1LzE1IG9uIGFsbCBURnMpLCBidXQgdmVyaWZpZWQgcHVsbGJhY2stZmlyc3Qgb2NjdXJzIG9ubHkKLy8gICB+MTklLTI1JSBvZiBkaXNjcmV0ZSBOZXh0LU1vdmUgdHJhbnNpdGlvbnMgYW5kIG9ubHkgNC43OCUgb2YgSzEgTTE1IGV2ZW50cyB1bmRlciB0aGUgc3RyaWN0IHNpZ25hbC1yYW5nZSBkaWFnbm9zdGljLgovLyAtIE5vIEsxLCBOZXh0IE1vdmUsIFB1bGxiYWNrLCBLNS9LNiwgVFAgaW5wdXQsIG9yIHByb2R1Y3Rpb24gYmFzZWxpbmUgbG9naWMgaXMgY2hhbmdlZCBieSB0aGlzIHBoYXNlLgovLyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K"
         run: |
           set -euo pipefail
           SRC_COMMIT='cf2919647fec597a440fa2252fb2041bd7e02bcb'
@@ -29,106 +31,9 @@ jobs:
           git fetch --no-tags https://github.com/suhaimitoamy/Indikator-trading-view.git "$SRC_COMMIT"
           test "$(git rev-parse FETCH_HEAD:Amy-SMC-D-LAB.pine)" = "$SRC_LAB_BLOB"
           test "$(git rev-parse FETCH_HEAD:Amy-SMC-D.pine)" = "$PROD_BASELINE_BLOB"
-
           git show FETCH_HEAD:Amy-SMC-D-LAB.pine > /tmp/Amy-SMC-D-LAB.base.pine
           cp /tmp/Amy-SMC-D-LAB.base.pine Amy-SMC-D-LAB.pine
-
-          cat >> Amy-SMC-D-LAB.pine <<'EOF'
-
-// =====================================================================================================================
-// === FASE BACKTEST GABUNGAN: Entry Opt & Pullback — 2026-08-11 ======================================================
-// =====================================================================================================================
-// SCOPE / LOCK
-// - Production baseline remains frozen: Amy-SMC-D.pine blob d6e6d7c979dd5a852bddd9661bef0480caa2eb35. NOT COPIED OR MODIFIED here.
-// - Working source before this report is byte-identical to Amy-SMC-D-LAB.pine @ cf2919647fec597a440fa2252fb2041bd7e02bcb.
-// - K1-K6 logic/results, Next Move logic, and Pullback definition are NOT changed. This phase appends comments/results only.
-// - Dataset/replay: audited raw XAUUSD, 2004 warm-up; score 2005-2026 (2026 through Jul); rolling 8y train -> 1y OOS;
-//   15 OOS windows 2012-2026; no synthetic candles. Horizons remain M5=48, M15=32, H1=24 closed bars.
-// - K1 remains Qualified Valid Break + same-direction Internal Structure. Execution remains NEXT OPEN; opposite Swing is locked SL.
-// - Same-candle TP+SL default remains conservative SL-first except the explicit sensitivity comparison below.
-//
-// REPLAY IDENTITY CHECK
-// - M15 K1 OOS events reproduced exactly: 878 signals/executions.
-// - Directional survival reproduced exactly: 90.6606% (locked report 90.66%).
-// - At 0.40R the TP hit-rate reproduced exactly: 39.9772% (locked report 39.98%).
-// - This phase's uniform NEXT-OPEN R-accounting gives +0.0150R expectancy at 0.40R; prior locked K1-K6 comment remains
-//   authoritative at +0.0146R and is intentionally not overwritten. The 0.0004R accounting delta does not change ranking.
-//
-// ---------------------------------------------------------------------------------------------------------------------
-// BAGIAN A.1 — K1 M15 TP SWEEP, OOS 2012-2026
-// Columns: TP | TP WR | Expectancy | HC windows (>=30 executions / 15). Signal set is unchanged at N=878 for every row.
-// ---------------------------------------------------------------------------------------------------------------------
-// 0.20R | 64.12% | +0.0036R | 15/15
-// 0.30R | 51.03% | +0.0155R | 15/15
-// 0.40R | 39.98% | +0.0150R | 15/15   <- current baseline replay; prior locked expectancy +0.0146R
-// 0.50R | 31.89% | +0.0150R | 15/15
-// 0.60R | 24.94% | +0.0112R | 15/15
-// 0.70R | 19.13% | +0.0031R | 15/15
-// 0.80R | 15.72% | +0.0067R | 15/15
-// 0.90R | 13.67% | +0.0138R | 15/15
-// 1.00R | 11.28% | +0.0118R | 15/15   <- robustness remains positive; prior lock also positive (+0.0114R)
-// 1.10R |  8.43% | +0.0044R | 15/15
-// 1.20R |  7.63% | +0.0102R | 15/15
-// 1.30R |  6.04% | +0.0122R | 15/15
-// 1.40R |  4.56% | +0.0071R | 15/15
-// 1.50R |  3.87% | +0.0079R | 15/15
-//
-// OOS consistency detail for the manual candidate:
-// - 0.30R positive-expectancy windows: 9/15; 0.40R baseline: 8/15.
-// - 0.30R yearly TP-WR range: 38.81%-61.02%. HC remains 15/15, so the WR gain is not produced by dropping sparse years.
-//
-// BAGIAN A.2 — SAME-CANDLE TIE-BREAK SENSITIVITY
-// - Baseline 0.40R: 0/878 ambiguous trades (0.000%); TP-first vs SL-first changes neither WR nor expectancy.
-// - Selected 0.30R: 0/878 ambiguous trades (0.000%); TP-first vs SL-first changes neither WR nor expectancy.
-// - Across the FULL 0.20R-1.50R sweep, only 2 unique K1 trades ever become ambiguous at any tested TP = 0.2278% of N=878.
-// - Per affected TP level: 0.20R, 0.60R and 0.70R each contain only 1 ambiguous trade = 0.1139%.
-// - Maximum observed TP-first shift: +0.1139 percentage point TP-WR and +0.00194R expectancy (at 0.70R).
-// CONCLUSION: tie-break sensitivity is noise-level for K1 M15 and is immaterial to the 0.30R vs 0.40R decision.
-//
-// BAGIAN A.3 — TP RECOMMENDATION
-// - SELECTED: 0.30R for optional manual-execution reference.
-// - TP-WR improves from 39.98% at 0.40R to 51.03% at 0.30R = +11.05 percentage points absolute.
-// - Expectancy remains positive and marginally higher in the uniform replay (+0.0155R vs +0.0150R), with HC unchanged 15/15.
-// - 0.20R has a larger WR gain (64.12%) but sacrifices most expectancy (+0.0036R), so it is rejected as too compressed.
-// - K1 signal/trigger itself remains frozen. This is a TP-reference conclusion only; no Pine execution logic is changed here.
-//
-// ---------------------------------------------------------------------------------------------------------------------
-// BAGIAN B.1 — PULLBACK STATISTICAL VALIDATION
-// ---------------------------------------------------------------------------------------------------------------------
-// IMPORTANT DEFINITION LIMIT: cf29196 defines Pullback ONLY as opposite direction of Next Move (UP/DOWN/WAIT).
-// There is NO numeric Pullback price level in the feature. Therefore this diagnostic does NOT invent an entry level.
-// For a scale-free path-order test, each DISCRETE actionable Next-Move transition uses the signal candle extremes only:
-// - bullish Next Move: verified pullback-first = later price breaks signal LOW first, then subsequently breaks signal HIGH;
-// - bearish Next Move: verified pullback-first = later price breaks signal HIGH first, then subsequently breaks signal LOW.
-// If both extremes are first broken inside the same base-TF candle, ordering is unknowable from OHLC and is NOT counted success.
-// Results are OOS 2012-2026 at the locked horizons; HC means >=30 discrete Next-Move transitions in an OOS year.
-//
-// TF  | verified pullback-first | events | 95% Wilson interval | ambiguous-first | HC | yearly success range
-// M5  | 19.13% (132/690)       | 690    | 16.37%-22.23%       | 4.06% (28)      |15/15| 10.42%-26.53%
-// M15 | 25.23% (1989/7884)     | 7884   | 24.28%-26.20%       | 6.57% (518)     |15/15| 21.81%-29.71%
-// H1  | 20.80% (428/2058)      | 2058   | 19.10%-22.60%       | 9.48% (195)     |15/15| 16.28%-24.44%
-//
-// K1-M15-specific diagnostic (same path-order definition): only 42/878 = 4.78% of K1 events showed a verified
-// opposite-extreme pullback first and then continuation; 14/878 = 1.59% were same-bar order-ambiguous.
-// This confirms that the visual opposite-direction label is NOT a high-frequency prerequisite before K1 continuation.
-//
-// BAGIAN B.2 — PULLBACK AS K1 M15 ENTRY-TIMING FILTER
-// - No standalone simulation can be defined without inventing a numeric Pullback level, which would violate the locked cf29196 definition.
-// - The only existing exact K1-compatible touch level in D-LAB is amyDlabK1Trigger = the broken QVB BSL/SSL level.
-// - Using that level as the requested delayed Pullback touch is IDENTICAL WITH K5 (QVB RETEST), so the analysis is NOT repeated.
-// - Locked K1 NEXT OPEN: 878 executions | TP WR 39.98% | expectancy +0.0146R | HC 15/15.
-// - Locked K5 QVB RETEST: 434 executions | fill 49.43% | TP WR 43.09% | expectancy +0.0021R | HC 7/15.
-// - K5 versus K1: WR +3.11pp, but expectancy -0.0125R and HC -8 windows; 50.57% of K1 opportunities are not filled.
-//
-// BAGIAN B.3 — PULLBACK CONCLUSION
-// - RETAIN Pullback as dashboard visual/context information only under the current definition.
-// - DO NOT promote it to an optional K1 timing filter: it has no native price level, and the only existing level proxy is K5,
-//   whose small WR improvement is accompanied by materially worse expectancy and HC robustness.
-// - Statistical path-order evidence is stable enough to measure (HC 15/15 on all TFs), but verified pullback-first occurs only
-//   ~19%-25% of discrete Next-Move transitions and only 4.78% of K1 M15 events under the strict signal-range diagnostic.
-// - No K1, Next Move, Pullback, K5/K6, TP input, or production baseline logic is changed by this phase.
-// =====================================================================================================================
-EOF
+          printf '%s' "$REPORT_B64" | base64 -d >> Amy-SMC-D-LAB.pine
 
           python - <<'PY'
           from pathlib import Path
@@ -138,16 +43,18 @@ EOF
           marker = b'// === FASE BACKTEST GABUNGAN: Entry Opt & Pullback'
           if marker not in final:
               raise SystemExit('phase marker missing')
-          if not final.startswith(base):
-              raise SystemExit('pre-existing D-LAB source changed before appended report')
           if final[:len(base)] != base:
-              raise SystemExit('K1/Next Move/Pullback prefix is not byte-identical')
+              raise SystemExit('pre-existing D-LAB source changed before appended report')
           if b'// M15: K1 878/878 | 90.66% | 39.98% | +0.0146R | 15/15' not in base:
               raise SystemExit('locked K1-K6 result block missing')
-          if b"string amyPullback = amyPullbackDirection == BULLISH ? 'UP' : amyPullbackDirection == BEARISH ? 'DOWN' : 'WAIT'" not in base:
+          pullback = b"string amyPullback = amyPullbackDirection == BULLISH ? 'UP' : amyPullbackDirection == BEARISH ? 'DOWN' : 'WAIT'"
+          if pullback not in base:
               raise SystemExit('cf29196 Pullback definition missing')
-          print('base_sha1=', hashlib.sha1(b'blob ' + str(len(base)).encode() + b'\0' + base).hexdigest())
-          print('append_only_bytes=', len(final)-len(base))
+          blob_sha = hashlib.sha1(b'blob ' + str(len(base)).encode() + b'\0' + base).hexdigest()
+          if blob_sha != '1bad036de22ed720154bf14d32d9a7b0ff02b6fd':
+              raise SystemExit('source blob mismatch: ' + blob_sha)
+          print('verified_source_blob=', blob_sha)
+          print('append_only_bytes=', len(final) - len(base))
           PY
 
           git diff --check -- Amy-SMC-D-LAB.pine
