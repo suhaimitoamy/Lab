@@ -1,0 +1,162 @@
+name: Finalize D-LAB Entry Optimization and Pullback Stats
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/one-time-dlab-entry-pullback-backtest.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Import locked D-LAB snapshot and append verified report only
+        run: |
+          set -euo pipefail
+          SRC_COMMIT='cf2919647fec597a440fa2252fb2041bd7e02bcb'
+          SRC_LAB_BLOB='1bad036de22ed720154bf14d32d9a7b0ff02b6fd'
+          PROD_BASELINE_BLOB='d6e6d7c979dd5a852bddd9661bef0480caa2eb35'
+
+          git fetch --no-tags https://github.com/suhaimitoamy/Indikator-trading-view.git "$SRC_COMMIT"
+          test "$(git rev-parse FETCH_HEAD:Amy-SMC-D-LAB.pine)" = "$SRC_LAB_BLOB"
+          test "$(git rev-parse FETCH_HEAD:Amy-SMC-D.pine)" = "$PROD_BASELINE_BLOB"
+
+          git show FETCH_HEAD:Amy-SMC-D-LAB.pine > /tmp/Amy-SMC-D-LAB.base.pine
+          cp /tmp/Amy-SMC-D-LAB.base.pine Amy-SMC-D-LAB.pine
+
+          cat >> Amy-SMC-D-LAB.pine <<'EOF'
+
+// =====================================================================================================================
+// === FASE BACKTEST GABUNGAN: Entry Opt & Pullback — 2026-08-11 ======================================================
+// =====================================================================================================================
+// SCOPE / LOCK
+// - Production baseline remains frozen: Amy-SMC-D.pine blob d6e6d7c979dd5a852bddd9661bef0480caa2eb35. NOT COPIED OR MODIFIED here.
+// - Working source before this report is byte-identical to Amy-SMC-D-LAB.pine @ cf2919647fec597a440fa2252fb2041bd7e02bcb.
+// - K1-K6 logic/results, Next Move logic, and Pullback definition are NOT changed. This phase appends comments/results only.
+// - Dataset/replay: audited raw XAUUSD, 2004 warm-up; score 2005-2026 (2026 through Jul); rolling 8y train -> 1y OOS;
+//   15 OOS windows 2012-2026; no synthetic candles. Horizons remain M5=48, M15=32, H1=24 closed bars.
+// - K1 remains Qualified Valid Break + same-direction Internal Structure. Execution remains NEXT OPEN; opposite Swing is locked SL.
+// - Same-candle TP+SL default remains conservative SL-first except the explicit sensitivity comparison below.
+//
+// REPLAY IDENTITY CHECK
+// - M15 K1 OOS events reproduced exactly: 878 signals/executions.
+// - Directional survival reproduced exactly: 90.6606% (locked report 90.66%).
+// - At 0.40R the TP hit-rate reproduced exactly: 39.9772% (locked report 39.98%).
+// - This phase's uniform NEXT-OPEN R-accounting gives +0.0150R expectancy at 0.40R; prior locked K1-K6 comment remains
+//   authoritative at +0.0146R and is intentionally not overwritten. The 0.0004R accounting delta does not change ranking.
+//
+// ---------------------------------------------------------------------------------------------------------------------
+// BAGIAN A.1 — K1 M15 TP SWEEP, OOS 2012-2026
+// Columns: TP | TP WR | Expectancy | HC windows (>=30 executions / 15). Signal set is unchanged at N=878 for every row.
+// ---------------------------------------------------------------------------------------------------------------------
+// 0.20R | 64.12% | +0.0036R | 15/15
+// 0.30R | 51.03% | +0.0155R | 15/15
+// 0.40R | 39.98% | +0.0150R | 15/15   <- current baseline replay; prior locked expectancy +0.0146R
+// 0.50R | 31.89% | +0.0150R | 15/15
+// 0.60R | 24.94% | +0.0112R | 15/15
+// 0.70R | 19.13% | +0.0031R | 15/15
+// 0.80R | 15.72% | +0.0067R | 15/15
+// 0.90R | 13.67% | +0.0138R | 15/15
+// 1.00R | 11.28% | +0.0118R | 15/15   <- robustness remains positive; prior lock also positive (+0.0114R)
+// 1.10R |  8.43% | +0.0044R | 15/15
+// 1.20R |  7.63% | +0.0102R | 15/15
+// 1.30R |  6.04% | +0.0122R | 15/15
+// 1.40R |  4.56% | +0.0071R | 15/15
+// 1.50R |  3.87% | +0.0079R | 15/15
+//
+// OOS consistency detail for the manual candidate:
+// - 0.30R positive-expectancy windows: 9/15; 0.40R baseline: 8/15.
+// - 0.30R yearly TP-WR range: 38.81%-61.02%. HC remains 15/15, so the WR gain is not produced by dropping sparse years.
+//
+// BAGIAN A.2 — SAME-CANDLE TIE-BREAK SENSITIVITY
+// - Baseline 0.40R: 0/878 ambiguous trades (0.000%); TP-first vs SL-first changes neither WR nor expectancy.
+// - Selected 0.30R: 0/878 ambiguous trades (0.000%); TP-first vs SL-first changes neither WR nor expectancy.
+// - Across the FULL 0.20R-1.50R sweep, only 2 unique K1 trades ever become ambiguous at any tested TP = 0.2278% of N=878.
+// - Per affected TP level: 0.20R, 0.60R and 0.70R each contain only 1 ambiguous trade = 0.1139%.
+// - Maximum observed TP-first shift: +0.1139 percentage point TP-WR and +0.00194R expectancy (at 0.70R).
+// CONCLUSION: tie-break sensitivity is noise-level for K1 M15 and is immaterial to the 0.30R vs 0.40R decision.
+//
+// BAGIAN A.3 — TP RECOMMENDATION
+// - SELECTED: 0.30R for optional manual-execution reference.
+// - TP-WR improves from 39.98% at 0.40R to 51.03% at 0.30R = +11.05 percentage points absolute.
+// - Expectancy remains positive and marginally higher in the uniform replay (+0.0155R vs +0.0150R), with HC unchanged 15/15.
+// - 0.20R has a larger WR gain (64.12%) but sacrifices most expectancy (+0.0036R), so it is rejected as too compressed.
+// - K1 signal/trigger itself remains frozen. This is a TP-reference conclusion only; no Pine execution logic is changed here.
+//
+// ---------------------------------------------------------------------------------------------------------------------
+// BAGIAN B.1 — PULLBACK STATISTICAL VALIDATION
+// ---------------------------------------------------------------------------------------------------------------------
+// IMPORTANT DEFINITION LIMIT: cf29196 defines Pullback ONLY as opposite direction of Next Move (UP/DOWN/WAIT).
+// There is NO numeric Pullback price level in the feature. Therefore this diagnostic does NOT invent an entry level.
+// For a scale-free path-order test, each DISCRETE actionable Next-Move transition uses the signal candle extremes only:
+// - bullish Next Move: verified pullback-first = later price breaks signal LOW first, then subsequently breaks signal HIGH;
+// - bearish Next Move: verified pullback-first = later price breaks signal HIGH first, then subsequently breaks signal LOW.
+// If both extremes are first broken inside the same base-TF candle, ordering is unknowable from OHLC and is NOT counted success.
+// Results are OOS 2012-2026 at the locked horizons; HC means >=30 discrete Next-Move transitions in an OOS year.
+//
+// TF  | verified pullback-first | events | 95% Wilson interval | ambiguous-first | HC | yearly success range
+// M5  | 19.13% (132/690)       | 690    | 16.37%-22.23%       | 4.06% (28)      |15/15| 10.42%-26.53%
+// M15 | 25.23% (1989/7884)     | 7884   | 24.28%-26.20%       | 6.57% (518)     |15/15| 21.81%-29.71%
+// H1  | 20.80% (428/2058)      | 2058   | 19.10%-22.60%       | 9.48% (195)     |15/15| 16.28%-24.44%
+//
+// K1-M15-specific diagnostic (same path-order definition): only 42/878 = 4.78% of K1 events showed a verified
+// opposite-extreme pullback first and then continuation; 14/878 = 1.59% were same-bar order-ambiguous.
+// This confirms that the visual opposite-direction label is NOT a high-frequency prerequisite before K1 continuation.
+//
+// BAGIAN B.2 — PULLBACK AS K1 M15 ENTRY-TIMING FILTER
+// - No standalone simulation can be defined without inventing a numeric Pullback level, which would violate the locked cf29196 definition.
+// - The only existing exact K1-compatible touch level in D-LAB is amyDlabK1Trigger = the broken QVB BSL/SSL level.
+// - Using that level as the requested delayed Pullback touch is IDENTICAL WITH K5 (QVB RETEST), so the analysis is NOT repeated.
+// - Locked K1 NEXT OPEN: 878 executions | TP WR 39.98% | expectancy +0.0146R | HC 15/15.
+// - Locked K5 QVB RETEST: 434 executions | fill 49.43% | TP WR 43.09% | expectancy +0.0021R | HC 7/15.
+// - K5 versus K1: WR +3.11pp, but expectancy -0.0125R and HC -8 windows; 50.57% of K1 opportunities are not filled.
+//
+// BAGIAN B.3 — PULLBACK CONCLUSION
+// - RETAIN Pullback as dashboard visual/context information only under the current definition.
+// - DO NOT promote it to an optional K1 timing filter: it has no native price level, and the only existing level proxy is K5,
+//   whose small WR improvement is accompanied by materially worse expectancy and HC robustness.
+// - Statistical path-order evidence is stable enough to measure (HC 15/15 on all TFs), but verified pullback-first occurs only
+//   ~19%-25% of discrete Next-Move transitions and only 4.78% of K1 M15 events under the strict signal-range diagnostic.
+// - No K1, Next Move, Pullback, K5/K6, TP input, or production baseline logic is changed by this phase.
+// =====================================================================================================================
+EOF
+
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          base = Path('/tmp/Amy-SMC-D-LAB.base.pine').read_bytes()
+          final = Path('Amy-SMC-D-LAB.pine').read_bytes()
+          marker = b'// === FASE BACKTEST GABUNGAN: Entry Opt & Pullback'
+          if marker not in final:
+              raise SystemExit('phase marker missing')
+          if not final.startswith(base):
+              raise SystemExit('pre-existing D-LAB source changed before appended report')
+          if final[:len(base)] != base:
+              raise SystemExit('K1/Next Move/Pullback prefix is not byte-identical')
+          if b'// M15: K1 878/878 | 90.66% | 39.98% | +0.0146R | 15/15' not in base:
+              raise SystemExit('locked K1-K6 result block missing')
+          if b"string amyPullback = amyPullbackDirection == BULLISH ? 'UP' : amyPullbackDirection == BEARISH ? 'DOWN' : 'WAIT'" not in base:
+              raise SystemExit('cf29196 Pullback definition missing')
+          print('base_sha1=', hashlib.sha1(b'blob ' + str(len(base)).encode() + b'\0' + base).hexdigest())
+          print('append_only_bytes=', len(final)-len(base))
+          PY
+
+          git diff --check -- Amy-SMC-D-LAB.pine
+
+      - name: Commit append-only phase report and remove one-time workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/one-time-dlab-entry-pullback-backtest.yml
+          git add Amy-SMC-D-LAB.pine
+          git commit -m "research: optimize K1 M15 TP and validate Pullback statistics"
+          git push origin HEAD:main
